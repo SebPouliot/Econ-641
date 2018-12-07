@@ -1,0 +1,320 @@
+---
+author: "Sebastien pouliot"
+date: "Fall 2018"
+output:
+  pdf_document:
+    fig_caption: yes
+  html_document:
+    df_print: paged
+documentclass: book
+classoption: openany
+fontsize: 11pt
+site: bookdown::bookdown_site
+subparagraph: yes
+geometry: letterpaper, tmargin=0.85in, bmargin=1.1in, lmargin=1.15in, rmargin=1.15in, headheight=0.1in, headsep=0.15in, footskip=0.5in
+link-citations: yes
+biblio-style: apalike
+bibliography: References.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, fig.pos='htbp', fig.align = 'center', warning = FALSE, message = FALSE,  dev="CairoPDF", out.width = '75%')
+
+#Load some packages
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(magrittr)
+pacman::p_load(tidyverse)
+pacman::p_load(viridis)
+pacman::p_load(Cairo)
+pacman::p_load(readxl)
+pacman::p_load(lubridate)
+pacman::p_load(scales)
+pacman::p_load(stargazer)
+
+#Basic setup for figures
+source("Figures/Graph parameters.r")
+
+```
+
+\setcounter{chapter}{3}
+\setcounter{page}{115}
+
+# Reasons for Government Intervention in Agriculture
+
+Agriculture in developed countries is subject to a very elaborated set of policies that do not exist in other sectors of the economy. In the United States, farm policies are mostly conducted though the farm bill, which is adopted every five year or so to suspend provisions of permanent laws that were adopted a long time ago. The last farm bill was the *Federal Agriculture Reform and Risk Management Act of 2013* was adopted in early 2014 and replaced the 2008 farm bill.
+
+Why does agriculture receive so much attention by Governments? Is there something particular to agriculture that justifies intervention? We will cover in this section three papers that review the arguments to support agriculture. Other references include @Gardner1987 and @Sumner2010.
+
+The focus here is on claims made to justify governmental intervention in agriculture. I do not explore the influence of international trade agreements on support in agriculture. International pressures have had a great deal of impact on how agricultural policies are conducted in developed countries. @Anderson2013. looks at trends in agricultural policies and political economy and what motivates these trends in many countries. @Bellemare2015. takes a look at US domestic political motives for support to agricultural policies.
+
+## Johnson (1958): Arguments for government support in agriculture
+
+@Johnson1958 discusses seven arguments to justify governmental subsidies in agriculture. He finds that most of these arguments are not supported by empirical evidence or are not arguments that support maximization of total surplus.
+
+1. Depressions are farm-led and farm-fed:
+    - Farm sector is too small to have any significant effect on general business activity;
+    - Supply is very inelastic, implying large variations in prices;
+    - However, loss to farmers are gains to consumers...
+2. Offset monopoly power:
+    - Oligopsony power is more common in agriculture but greatly exaggerated;
+    - Labor in food plants acquire monopoly power through unions and capture the rent from agriculture;
+    - No evidence that that unions have much effect;
+    - Creating monopolies (marketing agreements) is not a socially optimal solution to monopsony power.
+3. Farms are small and cannot undertake certain activities:
+    - For example, individual farms are too small to invest is research;
+    - @Johnson1958 does not dismiss this argument;
+    - Research is not a direct subsidy and research activities by government are not specific to agriculture;
+    - Market for research and private research has become more important.
+4. Economic instability:
+    - Farm wage fluctuates more than the price of other products;
+    - Output subject to weather, diseases, insects and pests;
+    - Instability provides ground for some kind of governmental intervention;
+    - Gains of such programs may not be large for the economy.
+5. Agriculture is a declining industry:
+    - Difficult adjustment to decline;
+    - Low wages, workers trained on farms;
+    - Government may play a role in facilitating migration out of agriculture.
+    - Farm incomes are too low:
+    - For a the statement that farm incomes are too low to be valid, must take into account the following: i. purchasing power, ii. comparable groups (education, age, sex), iii. taxation, and iv. importance of labor income;
+    - When accounting for these, farm income is not so low compared to other sectors of the economy.
+6. Military and strategic reasons:
+    - Encourage agriculture expansion and storage for military and strategic reasons;
+    - Agriculture in the United States would continue to expand without government support;
+    - Cause production to be reduced somewhere else: moves resources to agriculture and affect agriculture production somewhere else in the world.
+
+## @Gardner1992: The farm problem
+@Gardner1992 is interested in the farm problem defined as: ``Low and unstable income generated by the particular economic structure of the agricultural economy."
+
+### Explanations
+@Gardner1992 offers three explanations for the farm problem.
+
+#### Farm model
+The farm problem model explains the farm problem with a simple model of demand and supply that can be summarized by figure \ref{fig.farmproblem}. The model assumes that
+
+- Very inelastic demand;
+- Very inelastic supply;
+- Demand increases slowly over time;
+- But supply increases more rapidly.
+
+\begin{figure}[htbp]
+\begin{center}
+    \begin{picture}(240,240)
+        %Axises and labels
+        \scriptsize
+        \put(0,0){\vector(1,0){220}} %x-axis
+        \put(0,0){\vector(0,1){220}} %y-axis
+        \put(215,-10){Q}
+        \put(-7.5,210){P}
+        %Initial equilibrium
+        \thicklines
+        \put(40,200){\line(1,-5){36}}%Demand
+        \put(40,20){\line(1,5){36}}%Supply
+        \thinlines
+        \multiput(58,110)(0,-10){11}{\line(0,-1){6}}%Dashed line - vertical
+        \multiput(58,110)(-10,0){6}{\line(-1,0){6}}%Dashed line - horizontal
+        \put(53,-7.5){$Q_0$}
+        \put(-10,105){$P_0$}
+        \put(76,205){$S_0$}
+        \put(71,15){$D_0$}
+        %Shift in the supply
+        \color{blue}
+        \thicklines
+        \put(80,20){\line(1,5){36}}%Supply-2
+        \thinlines
+        \put(69,165){\vector(1,0){40}}
+        \put(116,205){$S_1$}
+        %Shift in Demand
+        \thicklines
+        \put(70,200){\line(1,-5){36}}%Demand-2
+        \thinlines
+        \put(50,150){\vector(1,0){30}}
+        \put(106,15){$D_1$}
+        %Equilibrium
+        \thinlines
+        \multiput(93,85)(0,-8){11}{\line(0,-1){6}}%Dashed line - vertical
+        \multiput(93,85)(-10,0){9}{\line(-1,0){6}}%Dashed line - horizontal
+        \put(88,-7.5){$Q_1$}
+        \put(-10,80){$P_1$}
+        %Change in price
+        \put(25,110){\vector(0,-1){25}}
+        \end{picture}
+\vspace{0.1in}
+\caption{Farm problem model}\label{fig.farmproblem}
+\end{center}
+\end{figure}
+
+The model can generate high short-term variations in prices and long-term decrease in prices. However, the model does not take into account for trade, implying larger elasticities and less short-term volatility.
+
+#### Factor (input) markets
+
+How can input markets justify government support in agriculture?
+
+- Large supply of labor to agriculture causes low wages;
+- Movement of labor out of agriculture;
+- Asset fixity (low market value outside of agriculture for agricultural fixed assets), one-way supply curve;
+- Doubtful that farm problem is caused by disequilibrium;
+- Compensating differential for skills differentials.
+
+#### Measurement of farm income and factor returns
+
+Can the alleged problems that farms face be due to income measurement and how return on factors is measured?
+
+- Definition of a farm;
+- Size of household (farmers have more children);
+- Wage rate = market wage rate?
+- Farm wealth: farmers are wealthier than non-farm people. Farm income is measured as Value of crop production - Value of purchased inputs + Net government transaction - Capital consumption - Payments to stakeholders;
+- Income inequality - poor southern black farmers moving out of agriculture;
+- Evidence against the farm problem from movement out of agriculture of the poorest farmers: rejection of the farm problem.
+
+### US farm policy
+
+Large scale governmental intervention in agriculture began with the *New Deal's Adjustment Act of 1933*. Tariffs (protectionism), price control and storage were introduced. Government intervention was supposed to be temporary but became permanent after World War II. However, Government intervention in US agriculture has since increased and been adapted.
+
+@Gardner1992 then discusses market intervention methods. We will see more on this later.
+
+Regarding Benefit/cost analysis of farm programs, @Gardner1992 notes that
+
+- Difficult to conduct for a wide-range of policies and commodities;
+- Support vary each year;
+- There is not counterfactual to estimate the effect of farm programs.
+
+
+### Explanation of Agricultural policies
+
+Why are agricultural policies persisting despite the disappearance of the farm problem?
+
+- Second-best intervention:
+    - Price instability;
+    - Imperfect competition;
+    - Trade barriers.
+- Interest groups:
+    - Policy aimed at public-good goals are understood as income redistribution programs (ethanol);
+    - Countries protect crops that face international competition.
+
+## Sumner (2007): Rationales for farm subsidies
+
+@Sumner2007 rejects rationales for farm subsidies. His arguments are based on the comparison of the distribution and the form of support across commodities to the claimed objectives of farm subsidies.
+
+1. Chronic low farm prices;
+2. Chronic high variability in farm prices;
+    - Farm problem [@Gardner1992];
+    - International trade makes demand and supply more elastic;
+    - What is the meaning of prices that results from market forces that are too low and too variable when the interests of consumers and producers are taken into account?
+3. Farm and rural poverty;
+4. Chronic high variability in farm income;
+    - Rural poverty is a problem mostly among non-farm people;
+    - Commodity programs benefit to large farms;
+    - Private instruments to deal with price variability;
+    - Why do farm subsidies deal with only a handful of program crops?
+5. Low rate of return to farm equipment;
+    - This rationale should apply to all crops;
+6. Value of rural assets would fall without farm subsidies;
+    - True, farmland value down 20\% in some cases -  probably even more given US ethanol policies;
+    - Deadweight loss of farm subsidies.
+7. Slow rural development without farm subsidy;
+    - Rural communities rely mostly on non-farm income;
+    - Farm payments are not targeted toward vulnerable rural communities.
+8. Environmental considerations;
+    - Current programs do not play this role;
+    - Do farmers have acquired rights to pollute and must be compensating for not polluting?
+9. Without subsidies, prices would be too high;
+10. Without subsidies, food supply would be insecure;
+    - Farm price is a small share of retail price, tiny effect on food price;
+    - Research has been more effective in lowering food prices.
+11. Compensate for government regulation;
+    - Then farm subsidies should be targeted by commodities and regions on the basis of regulatory costs.
+12. Imbalance of market power favoring commercial buyers;
+    - Commodity programs do not deal directly with market power by commodity buyers;
+    - No evidence of market power is required for setting subsidy levels;
+    - Downstream firms with market power would capture the rent from the subsidy [not in @Sumner2007].
+13. Offset subsidies by international competitors;
+    - Current programs not calibrated to countervail subsidies by trading partners;
+    - Subsidies in the US have increased while they have decreased in other countries.
+
+@Sumner2007 concludes that the strongest rationale for farm subsidies is that they have existed for more than 70 years.
+
+## What is a farm bill?
+
+The farm bill is the main legal instruments through which agricultural laws are adopted in the United States. The farm bill contains provisions for price support, income support, agricultural trade, rural development, domestic food assistance, foreign food aid, conservation, crop insurance, farm credit, forestry and agricultural research. For details see @Jones2001, @Johnson2008 or @Bellemare2015. Thus, *Farm bill* is actually a misnomer as the bill includes various food policy provisions. For instance, the largest government expenditure of the farm bill is the Supplemental Nutrition Assistance Program (SNAP), which was formally called Food Stamps. Current legislation adopted by the House breaks SNAP from the farm bill but the farm bill adopted by the Senate includes SNAP.
+
+A farm bill is an omnibus bill, meaning that it consists of a collection of laws. The farm bill contains new laws and amendments to existing laws that are valid for a specified number of years. If a farm bill is not adopted before the expiration of the current farm bill, old permanent statutes (outdated) would come back into effect or provisions of the previous farm bill would be terminated.
+
+### Titles of the 2014 Farm Bill and examples of instruments
+
+This is the list of titles in the 2014 Farm Bill. I list below instruments that are either currently used or have been used in the past under these titles.
+
+1. Title I - Commodity Programs:
+    a. Agricultural Risk Coverage Program (ARC) and Price Loss Coverage Program (PLC);
+    b. Cotton Transition Payments;
+    c. Extension of Programs;
+    d. Loan Rates;
+    e. Margin Protection Program;
+    f. Supplemental Agriculture Disaster Assistance.
+2. Title II - Conservation:
+    a. Subsidies for other programs tied to environmental compliance;
+    b. Payments to idle land, government land rental;
+    c. Subsidies tied to environmental performance and improvement.
+3. Title III - Trade:
+    a. Direct price subsidy;
+    b. Export credit subsidy;
+    c. Export promotions programs.
+    d. Market access program;
+    e. Subsidized food exports to poor countries;
+    f. Other agricultural development aids.
+4. Title IV - Nutrition programs:
+    a. Supplemental Nutrition Assistance Program (food stamps);
+    b. Food subsidy for Women Infants and Children;
+    c. School lunches and breakfasts;
+    d. Food distribution for families tied to school attendance.
+5. Title V - Credit:
+    a. Farm loan;
+    b. Credit subsidy;
+    c. Government provision of credit.
+6. Title VI - Rural Development:
+    a. Bioenergy;
+    b. Rural infrastructure;
+    c. Rural business subsidy (credit);
+    d. Special farm payments for *disadvantaged* regions (Europe).
+7. Title VII - Research and Relater Matters:
+    a. Bioenergy research;
+    b. Citrus disease research;
+    c. Government performance;
+    d. Government subsidy;
+    e. Government regulation of R\&D.
+8. Title VIII - Forestry:
+    a. Insect and disease control.
+9. Title IX - Energy:
+    a. Biomass crop assistance program;
+    b. Rural energy.
+10 Title X - Horticulture:
+    a. Christmas tree research;
+    b. Plant pest and disease management and disaster prevention;
+    c. Local food promotion/farmers market promotion program.
+11. Title XI - Crop Insurance:
+    a. Crop insurance for yield and revenue;
+    b. Disaster payments;
+    c. Supplemental Coverage Option (SCO).
+12. Title XII - Miscellanous:
+    a. Catfish inspection.
+
+### Definitions of some farm commodity programs
+
+1. Direct (fixed) payment:
+    - Payment based on producers' historical program payment acres, yields and payment rates.
+2. Counter-cyclical payments (CCP):
+    - Payments available to producers when the market price falls below an established target price (price floor).  Available only to producers with an established base acres of certain commodities. Replaced marketing loss assistance in the 2002 Farm Act. Not available to producers who elect to participate in ACRE.
+3. Average Crop Revenue Election (ACRE):
+    - Alternative to counter-cyclical payments introduced in the 2008 Farm Act. Provides a revenue guarantee each year based on market prices and average yields for the respective commodities. Participation in ACRE reduces direct payments and lowers marketing assistance loan rates.
+4. Direct production subsidy:
+    - Payment per unit for the production of a specified commodity.
+5. Deficiency payment:
+    - Similar to counter-cyclical payments.  Eliminated in the 1996 Farm Act.  Payments to producers were based on current production and the difference between the market price and a target price.
+6. Production flexibility contracts (PFC):
+    - Payments independent of current production and market price introduced in the 1996 Farm Act to replace deficiency payments.  Payments were calculated as the product of an established fixed payment rate, farm's payment yield (fixed at 1985 level) and the farm's payment acres (fixed at 1996 level).
+7. Marketing loss assistance (MLA):
+    - Supplemented production flexibility contracts in fiscal years 1999, 2000 and 2001 to compensate producers from low market price.
+8. Marketing loans and loan deficiency payments:
+    - Marketing loan program allows producers to receive a loan from the Government and use production as a collateral.  Loan deficiency payments allow producers to receive marketing loan benefits when commodity prices are lower than the commodity loan rate.
+
+Note that there are payment limitations for some of these programs and that not all crops are eligible. For more information on programs available in the 2014 Farm Act: <https://www.ers.usda.gov/agricultural-act-of-2014-highlights-and-implications/>.
+

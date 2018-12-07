@@ -1,0 +1,1430 @@
+---
+author: "Sebastien pouliot"
+date: "Fall 2018"
+output:
+  pdf_document:
+    fig_caption: yes
+  html_document:
+    df_print: paged
+documentclass: book
+classoption: openany
+fontsize: 11pt
+site: bookdown::bookdown_site
+subparagraph: yes
+geometry: letterpaper, tmargin=0.85in, bmargin=1.1in, lmargin=1.15in, rmargin=1.15in, headheight=0.1in, headsep=0.15in, footskip=0.5in
+link-citations: yes
+biblio-style: apalike
+bibliography: References.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, fig.pos='htbp', fig.align = 'center', warning = FALSE, message = FALSE,  dev="CairoPDF", out.width = '75%')
+
+#Load some packages
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(magrittr)
+pacman::p_load(tidyverse)
+pacman::p_load(viridis)
+pacman::p_load(Cairo)
+pacman::p_load(readxl)
+pacman::p_load(lubridate)
+pacman::p_load(scales)
+pacman::p_load(stargazer)
+
+#Basic setup for figures
+source("Figures/Graph parameters.r")
+
+```
+
+\setcounter{chapter}{2}
+\setcounter{page}{88}
+
+# Market equilibrium models
+
+Analysis of the impacts of agricultural policies is often done with simple microeconomic models where the market equilibrium is shocked by the introduction of a new policies. In this section, we will use the *implicit function theorem* [@MasColell1995, p. 929] to study the impact of agricultural policies. Agricultural economists often refer to these models as *equilibrium displacement models*.
+
+The objective of an equilibrium displacement model is to measure changes in equilibrium quantities and prices from an exogenous shock. For example, equilibrium displacement models have been applied to: change in taxation or subsidy, trade barriers, change in input price and the introduction of new technology.
+
+Equilibrium displacement models have several advantages, including: 1) easy to implement; 2) based on market equilibrium; 3) make use of economic theory; 4) use elasticities to specify functions and in solutions; and give linear solutions. Of course, there are not only advantages of using equilibrium displacement models. Disadvantages include: 1) forego some specifics on technology and policies and might be a poor approximation; 2) ignores corner solutions; 3) not appropriate for large changes; and 4) welfare measures may require specific functional forms. Nevertheless, these models can be very useful provided their correct use and knowledge of their limitations. In particular, equilibrium displacement models are quite useful for back of envelop calculations and for to study the impacts of shocks that are relatively small.
+
+## Simple example
+
+Consider a demand function $Q^d=f(P^d: a)$ and a supply function $Q^s=g(P^s: b)$, where $a$ is a demand shifter and $b$ is a supply shifter. At equilibrium $Q^d=Q^s$ and $P^d=P^s$ such that we can write
+\begin{align*}
+\text{Demand: } Q=f(P);\\
+\text{Supply: } Q=g(P).
+\end{align*}
+Totally differentiating the demand equation yields:
+\begin{equation*}
+dQ = \frac{\p f(P)}{\p P} dP + \frac{\p f(P)}{\p P} \frac{\p P}{\p a} da.
+\end{equation*}
+We define $a$ such that it is shock on the price space. We could equivalently define the shock on the demand in the quantity space. Dividing both sides by $Q$ we can write
+\begin{equation*}
+\frac{dQ}{Q} = \frac{\p f(P)}{\p P} \frac{P}{Q} \frac{dP}{P} + \frac{\p f(P)}{\p P} \frac{P}{Q} \frac{\p P}{\p a} \frac{a}{P} \frac{da}{a}.
+\end{equation*}
+Then, we can rewrite the previous expression as
+\begin{equation*}
+EQ=\eta(EP-\alpha),
+\end{equation*}
+where $E$ denotes a percentage change, $\eta<0$ is the elasticity of demand and $\alpha>0$ shifts the demand up. Figure \ref{fig.shifts} shows how an increase in $\alpha$ affects demand.
+
+\begin{figure}[htbp]
+\begin{center}
+    \begin{picture}(240,240)
+        %Axises and labels
+        \scriptsize
+        \put(0,0){\vector(1,0){220}} %x-axis
+        \put(0,0){\vector(0,1){220}} %y-axis
+        \put(215,-10){$Q$} %Horizontal axis label
+        \put(-15,210){$P$} %Vertical axis label
+        %Lines
+        \thicklines
+        \put(10,150){\line(1,-1){140}}
+        \put(20,50){\line(1,1){150}}
+        \color{blue}
+        \put(10,190){\line(1,-1){180}}
+        \put(110,50){\vector(0,1){40}}
+        \put(20,10){\line(1,1){175}}
+        \put(110,140){\vector(0,-1){40}}
+        \color{black}
+        \multiput(65,0)(0,10.55){13}{\line(0,1){5.27}}%Dashed line - vertical
+        \multiput(0,95)(10,0){7}{\line(1,0){5}}%Dashed line - Horizontal
+        \multiput(0,55)(10,0){7}{\line(1,0){5}}%Dashed line - Horizontal
+        \multiput(0,135)(10,0){7}{\line(1,0){5}}%Dashed line - Horizontal
+        \put(-2,115){\makebox(0,0){$\left\{\rule{0pt}{21pt}\right.$}}
+        \put(-2,75){\makebox(0,0){$\left\{\rule{0pt}{21pt}\right.$}}
+        %Labels
+        \put(65,-10){$Q_0$}
+        \put(-15,95){$P_0$}
+        \put(-20,115){$\alpha P_0$}
+        \put(-20,75){$\beta P_0$}
+    \end{picture}
+\vspace{0.1in}
+\caption{Shifts in demand and supply in simple displacement model}\label{fig.shifts}
+\end{center}
+\end{figure}
+
+Similarly, we can totally differentiate the supply and after a few manipulations we can write
+\begin{equation*}
+\frac{dQ}{Q} = \frac{\p g(P)}{\p P} \frac{P}{Q} \frac{dP}{P} + \frac{\p g(P)}{\p P} \frac{P}{Q} \frac{\p P}{\p b} \frac{b}{P} \frac{db}{b}.
+\end{equation*}
+In terms of elasticity, the last expression becomes
+\begin{equation*}
+EQ=\epsilon(EP+\beta),
+\end{equation*}
+$\epsilon>0$ is the elasticity of supply and $\beta>0$ shifts the supply down. Figure \ref{fig.shifts} shows how an increase in $\beta$ affects supply.
+
+We can write the two equations for the change in the quantities using matrix notation
+$$\begin{pmatrix}
+  1 & -\eta \\
+  1 & -\epsilon \\
+\end{pmatrix}
+\begin{pmatrix}
+  EQ \\
+  EP \\
+\end{pmatrix}
+=
+\begin{pmatrix}
+  -\eta \alpha \\
+  \epsilon \beta \\
+\end{pmatrix}.
+\end{equation*}
+The solutions for the percentage change in the price and the quantity are:
+\begin{equation*}
+EP=\frac{-(\alpha \eta + \epsilon \beta)}{\epsilon - \eta},
+\end{equation*}
+and
+\begin{equation*}
+EQ=\frac{-\eta \epsilon(\alpha + \beta)}{\epsilon - \eta}.$$
+
+This simple model can easily be extended to $N$ inter-related commodities. The demand equations and the supply equations are given by
+$$\underbrace{E\mathbf{Q}}_{N\times1} = \underbrace{\Omega}_{N\times N} (\underbrace{E\mathbf{P}}_{N\times 1} - \underbrace{\alpha}_{N\times1}),$$
+and
+$$\underbrace{E\mathbf{Q}}_{N\times 1} = \underbrace{\Gamma}_{N\times N} (\underbrace{E\mathbf{P}}_{N\times 1} + \underbrace{\beta}_{N\times 1}).$$
+The solutions for the percentage changes are given by
+$$ \underbrace{\begin{pmatrix}
+  E\mathbf{Q} \\
+  E\mathbf{P} \\
+\end{pmatrix}}_{2N\times 1}
+=
+\underbrace{\begin{pmatrix}
+  I & -\Omega \\
+  I & -\Gamma \\
+\end{pmatrix}^{-1}}_{2N\times 2N}
+\underbrace{\begin{pmatrix}
+  -\Omega \alpha \\
+  \Gamma \beta \\
+\end{pmatrix}}_{2N\times 1}.$$
+
+
+## Application to commodity tax
+
+Consider a market where a new tax is introduced. The demand and the supply are given by
+\begin{align*}
+    \text{Demand: } Q^d=f(P^d);\\
+    \text{Supply: } Q^s=g(P^s).
+\end{align*}
+At equilibrium, we have that
+\begin{align*}
+    \text{Quantity: } Q^d=Q^s;\\
+    \text{Price: } P^d=P^s (1+t),
+\end{align*}
+that is, the tax causes the price paid by consumers to differ from the price paid to the suppliers.
+
+Differentiating the four equations of the model yields
+\begin{align*}
+    EQ^d =& \eta EP^d;\\
+    EQ^s =& \epsilon EP^s;\\
+    EQ^s =& EQ^d;\\
+    EP^d =& EP^s +t,
+\end{align*}
+where we write that $E(1+t)=\frac{dt}{1}=t$ because we assume that the tax is initially equal to zero. In matrix form, writing the system as three equations because $EQ^s = EQ^d=EQ$ yields
+$$\begin{pmatrix}
+  1 & -\eta & 0 \\
+  1 & 0 & -\epsilon \\
+  0 & 1 & -1 \\
+\end{pmatrix}
+\begin{pmatrix}
+  EQ \\
+  EP^d \\
+  EP^s\\
+\end{pmatrix}
+=
+\begin{pmatrix}
+  0 \\
+  0 \\
+  t
+\end{pmatrix}$$
+Solving the system of equations, we find
+\begin{align*}
+    EQ =& \frac{\epsilon \eta t}{\epsilon - \eta};\\
+    EP^d =& \frac{\epsilon t}{\epsilon - \eta};\\
+    EP^s =& \frac{\eta t}{\epsilon - \eta}.
+\end{align*}
+
+## Muth model: one output and two inputs
+
+We will take a look at the model of @Muth1964 where two inputs are used to produce one output. Muth's model has been used in agricultural economics to investigate the dispersion of shocks in supply chains. For instance, @Gardner1975 uses a model analogue to @Muth1964 to investigate changes in price margins. @Perrin1980 uses Muth's model to study the pricing of components of soybeans and milk. @Alston2002 review the incidence of agricultural subsidies in a supply chain using Muth's model.
+
+In Muth's model, the market for the output and and the markets for the two inputs are competitive. The equations of the model are:
+\begin{align}
+    \text{Output demand: } & Q =f(P:a); \label{eq.muth_demand}\\
+    \text{Production function: } & Q = q(x_1,x_2: e,h);\label{eq.muth_prod}\\
+    \text{Demand for input 1: } & w_1 = P q_1(x_1,x_2: e,h);\label{eq.muth_demand1}\\
+    \text{Demand for input 2: } & w_2 = P q_2(x_1,x_2: e,h);\label{eq.muth_demand2}\\
+    \text{Supply of input 1: } & x_1 = g_1(w_1: b_1);\label{eq.muth_supply1}\\
+    \text{Supply of input 2: } & x_2 = g_2(w_2: b_2)\label{eq.muth_supply2}.
+\end{align}
+where $q_i(x_1,x_2: g,h) \equiv q_i \equiv \p q(x_1,x_2: g,h)/ \p x_i$ for $i=1,2$, and the parameters $a$, $e$, $h$, $b_1$ and $b_2$ are exogenous shifters. The input demand functions are derived from the first order conditions for profit maximization. We will derive equations for equilibrium displacement for @Muth1964. For more detail about the derivation, see @Alston1995 or @Alston2002.
+
+Totally differentiating equations \eqref{eq.muth_demand}-\eqref{eq.muth_supply2} and after a few manipulations we can write the solutions for the percentage changes in terms of elasticity. Let me begin by expressing each equation in terms of elasticity. I provide details on the derivation only for the most difficult equations. The output demand equation in terms of elasticity is
+\begin{equation*}\tag{\ref{eq.muth_demand}'}
+EQ  = \eta(EP-\alpha).
+\end{equation*}
+
+We assume that the production technology exhibit constant return to scale. Totally differentiating \eqref{eq.muth_prod} yields
+$$dQ = q_1 d x_1 + q_2 d x_2  + \frac{\p q}{\p e} de + \frac{\p q}{\p h} dh.$$
+The parameter $h$ shifts the production function up for a given quantity of input. It is neutral in the sense that it does not affect the production mix. The shifter $e$ however is a technical change that affects the input mix for a given output level. Thus, given that it keeps the output constant, by definition $\p q/\p e=0$. Dividing by $Q$ on both sides and using equations \eqref{eq.muth_demand1} and \eqref{eq.muth_demand2}, we can write
+$$\frac{dQ}{Q} = \frac{w_1 x_1}{P Q} \frac{d x_1}{x_1} + \frac{w_2 x_2}{P Q} \frac{d x_2}{x_2} + \frac{\p q}{\p h} \frac{h}{Q} \frac{dh}{h}.$$
+In terms of elasticities we can write that
+\begin{equation*}\tag{\ref{eq.muth_prod}'}
+EQ = s_1 E x_1 + s_2 E x_2 + \delta,
+\end{equation*}
+where $s_i$ is the expenditure on input $i$ such that $s_1 + s_2 =1$ and $\delta$ is a neutral technical change. See figure \ref{fig.neutraltech} shows how a change in $\delta$ affects production.
+
+\begin{figure}[htbp]
+\begin{center}
+    \begin{picture}(240,240)
+        %Axises and labels
+        \scriptsize
+        \put(0,0){\vector(1,0){220}} %x-axis
+        \put(0,0){\vector(0,1){220}} %y-axis
+        \put(215,-10){$x_1$} %Horizontal axis label
+        \put(-15,210){$x_2$} %Vertical axis label
+        %Lines
+        \thicklines
+        \color{blue}
+        \qbezier(10, 200)(40, 40)(200, 10)
+        \put(0,0){\line(1,1){200}}
+        \put(72,72){\circle*{4}}
+        \put(101,101){\circle*{4}}
+        \put(205,10){$q^0$}
+        \multiput(0,72)(10.28,0){7}{\line(1,0){5.14}}
+        \multiput(72,0)(0,10.28){7}{\line(0,1){5.14}}
+        \put(72,-10){$x_1^1$}
+        \put(-15,72){$x_2^1$}
+        \color{black}
+        \put(205,50){$q^0$}
+        \qbezier(50, 200)(78, 78)(200, 50)
+        \multiput(101,0)(0,10.1){10}{\line(0,1){5.05}}
+        \multiput(0,101)(10.1,0){10}{\line(1,0){5.05}}
+        \color{black}
+        \put(101,-10){$x_1^0$}
+        \put(-15,101){$x_2^0$}
+        \put(-2,86){\makebox(0,0){$\left\{\rule{0pt}{15pt}\right.$}}
+        \put(-15,86){$\delta x_2^0$}
+        \put(86,-2){\makebox(0,0){$\underbrace{\rule{25pt}{0pt}}$}}
+        \put(84,-12){$\delta x_1^0$}
+        \put(67,150){\vector(-1,-1){30}}
+        \put(165,60){\vector(-1,-1){30}}
+    \end{picture}
+\vspace{0.2in}
+\caption{Neutral technical change}\label{fig.neutraltech}
+\end{center}
+\end{figure}
+
+Taking the total differential of \eqref{eq.muth_demand1} we can write
+$$dw_1 = dP q_1 + P q_{11} d x_1 + P q_{12} d x_2 + P \frac{\p q_1}{\p h} dh + P \frac{\p q_1}{\p e} de.$$
+Using equation \ref{eq.muth_demand1}, we can divide the left-hand side by $w_1$ and the right-hand side by $P q_1$, simplifying yields
+\begin{equation*}\tag{\ref{eq.muth_demand1}'}
+Ew_1 = EP - \frac{s_2}{\sigma} E x_1 + \frac{s_2}{\sigma} E x_2 + \delta + \gamma,
+\end{equation*}
+where $\sigma=\frac{q_1 q_2}{q_{12} Q}$ is the elasticity of substitution under constant return to scale. I show how to derive the expression for the elasticity of substitution in an appendix at the end of this section.
+
+We also used the fact that $q_{11}=-\frac{x_2}{x_1} q_{12}$ under constant return to scale (from Euler's theorem). To find this, we know that a production function exhibiting constant return to scale is homogeneous of degree 1. Thus, from Euler's formula [@MasColell1995, p. 940] we can write that
+$$q=x_1 q_1 + x_2 q_2.$$
+Differentiating this expression with respect to $x_1$ yields
+$$ q_1 =x_1 q_{11} + q_1 + x_2 q_{21}.$$
+Simplifying yields
+\begin{equation}\label{eq.q11}
+q_{11}=-\frac{x_2}{x_1} q_{12}.
+\end{equation}
+We use this expression and \eqref{eq.muth_demand2} to write that
+$$\frac{q_{11}}{q_1} d x_1 = \frac{- x_2 q_{12}}{q_1} \frac{d x_1}{x_1} = \frac{- q_{12}}{q_1} \frac{w_2 x_2}{w_2} E x_1 = \frac{-q_{12} q}{q_1 q_2} \frac{w_2 x_2}{P Q} E x_1 = \frac{-s_2}{\sigma} E x_1.$$
+
+The shifter $\gamma = \frac{\p q_1}{\p e} \frac{e}{q_1} Ee$ is a biased technical change defined as an increase in the marginal product of $x_1$ due to an $x_2$-saving biased technical change. Figure \ref{fig.biastech} shows how a change in $\gamma$ affects production.
+
+\begin{figure}[htbp]
+\begin{center}
+    \begin{picture}(240,240)
+        %Axises and labels
+        \scriptsize
+        \put(0,0){\vector(1,0){220}} %x-axis
+        \put(0,0){\vector(0,1){220}} %y-axis
+        \put(215,-10){$x_1$} %Horizontal axis label
+        \put(-15,210){$x_2$} %Vertical axis label
+        %Lines
+        \thicklines
+        \qbezier(50, 200)(78, 78)(200, 50)
+        \put(205,50){$q^0$}
+        \color{blue}
+        \qbezier(20, 200)(78, 78)(200, 80)
+        \put(205,80){$q^0$}
+        \color{black}
+        \put(40,165){\vector(1,1){15}}
+        \put(185,80){\vector(-1,-1){20}}
+    \end{picture}
+\vspace{0.2in}
+\caption{Biased technical change}\label{fig.biastech}
+\end{center}
+\end{figure}
+
+We can write a similar expression for the demand for input 2
+\begin{equation*}\tag{\ref{eq.muth_demand2}'} \label{eq.muth_demand22}
+Ew_2 = EP + \frac{s_1}{\sigma} E x_1 - \frac{s_1}{\sigma} E x_2 + \delta - \frac{s_1}{s_2} \gamma.
+\end{equation*}
+Note that the biased technical change is defined with respect to input 1 and that we must weight the biased technical change in \eqref{eq.muth_demand22}. To see this, the production function, given constant return to scale technology, can be written using Euler's theorem as
+\begin{equation*}
+q=x_1 q_1 + x_2 q_2.
+\end{equation*}
+Taking the partial derivative with respect to $e$, multiplying by $e$ and dividing by $Q$
+$$\frac{\p q}{\p e} \frac{e}{Q}=x_1 \frac{\p q_1}{\p e}\frac{e}{Q} + x_2 \frac{\p q_2}{\p e}\frac{e}{Q}.$$
+Because the biased technical change is defined as such that it is a rotation of an isoquant, see figure \ref{fig.biastech}, we set the previous expression equal to zero. Using \eqref{eq.muth_demand1} and \eqref{eq.muth_demand2}, multiplying by $Ee$ we can then write that
+$$ \frac{w_1 x_1}{P Q} \frac{\p q_1}{\p e}\frac{e}{q_1} Ee + \frac{w_2 x_2}{P Q} \frac{\p q_2}{\p e}\frac{e}{q_2} Ee= 0.$$
+Thus, we can write that
+$$\frac{\p q_2}{\p e}\frac{e}{q_2} Ee = -\frac{s_1}{s_2} \gamma.$$
+The supply equations for the two inputs in their elasticity forms are given by
+\begin{equation*}\tag{\ref{eq.muth_supply1}'}
+E x_1 = \epsilon_1 (E w_1 + \beta_1)
+\end{equation*}
+and
+\begin{equation*}\tag{\ref{eq.muth_supply2}'}
+E x_2 = \epsilon_2 (E w_2 + \beta_2).
+\end{equation*}
+
+The equations below show the solutions of the Muth model.^[These solutions are from table 4.2 @Alston1995. However I define the elasticity of demand as negative $(\eta<0)$ while @Alston1995 define the elasticity as positive $(\eta>0)$. The other elasticities are by definition positive, i.e. $\sigma>0$, $\epsilon_1>0$ and $\epsilon_2>0$.]
+\begin{equation*}
+EQ = \frac{ \left(
+\begin{array}{l}
+    -\eta\left[\epsilon_1 \epsilon_2 + \sigma(s_1 \epsilon_1 + s_2 \epsilon_2)\right]\alpha - s_1 \epsilon_1 \eta (\sigma + \epsilon_2) \beta_1 - s_2 \epsilon_2 \eta (\sigma + \epsilon_1) \beta_2 \\ - \eta \left[\sigma (1 + s_1 \epsilon_1 + s_2 \epsilon_2) + \epsilon_1 \epsilon_2 + s_1 \epsilon_2 + s_2 \epsilon_1 \right]\delta - s_1 \sigma \eta (\epsilon_1 - \epsilon_2) \gamma
+    \end{array}
+    \right)}{D} \tag{\ref{eq.muth_demand}''} \label{eq.muth_demand_2}
+\end{equation*}
+\begin{equation*}
+EP = \frac{ \left(
+\begin{array}{l}
+-\eta ( \sigma + s_2 \epsilon_1 + s_1 \epsilon_2 )\alpha - s_1 \epsilon_1 (\sigma + \epsilon_2) \beta_1 - s_2 \epsilon_2 (\sigma + \epsilon_1) \beta_2 \\
+- \left[  \sigma (1 + s_1 \epsilon_1 + s_2 \epsilon_2) + \epsilon_1 \epsilon_2 + s_1 \epsilon_2 + s_2 \epsilon_1 \right] \delta - s_1 \sigma (\epsilon_1 - \epsilon_2)\gamma
+\end{array}
+\right)}{D} \tag{\ref{eq.muth_prod}''}
+\end{equation*}
+\begin{equation*}
+Ex_1 = \frac{\left(
+\begin{array}{l}
+-\eta \epsilon_1 (\sigma + \epsilon_2) \alpha + \left[ -\eta \sigma + (s_2 \sigma - s_1 \eta) \epsilon_2 \right] \epsilon_1 \beta_1  - s_2 (\sigma+\eta) \epsilon_2 \epsilon_1 \beta_2 \\
+- (\sigma + \epsilon_2) (1+\eta) \epsilon_1 \delta + \epsilon_1 \sigma (\epsilon_2 - \eta) \gamma
+\end{array}
+\right)}{D} \tag{\ref{eq.muth_demand1}''}
+\end{equation*}
+\begin{equation*}
+Ex_2 = \frac{\left(
+\begin{array}{l}
+-\eta \epsilon_2 (\sigma + \epsilon_1) \alpha - s_1 (\sigma+\eta) \epsilon_1 \epsilon_2 \beta_1 + \left[ -\eta \sigma + (s_1 \sigma - s_2 \eta) \epsilon_1 \right] \epsilon_2 \beta_2 \\ 
+- (\sigma + \epsilon_1) (1+\eta) \epsilon_2 \delta - (s_1/s_2)\epsilon_2 \sigma (\epsilon_1 - \eta) \gamma
+\end{array}
+\right)}{D} \tag{\ref{eq.muth_demand2}''}
+\end{equation*}
+\begin{equation*}
+Ew_1 = \frac{\left(
+\begin{array}{l}
+-\eta (\sigma + \epsilon_2) \alpha - (s_1 \sigma - s_2 \eta + \epsilon_2) \epsilon_1 \beta_1  - s_2 (\sigma+\eta) \epsilon_2 \beta_2 \\
+- (\sigma + \epsilon_2) (1+\eta) \delta + \sigma (\epsilon_2 - \eta) \gamma
+\end{array}
+\right)}{D} \tag{\ref{eq.muth_supply1}''}
+\end{equation*}
+\begin{equation*}
+Ew_2 = \frac{\left(
+\begin{array}{l}
+-\eta (\sigma + \epsilon_1) \alpha - s_1 (\sigma+\eta) \epsilon_1 \beta_1 - (s_2 \sigma - s_1 \eta + \epsilon_1) \epsilon_2 \beta_2 \\
+- (\sigma + \epsilon_1) (1+\eta) \delta - (s_1/s_2)\sigma (\epsilon_1 - \eta) \gamma
+\end{array}
+\right)}{D} \tag{\ref{eq.muth_supply2}''} \label{eq.muth_supply2_2}
+\end{equation*}
+where
+$$D= \sigma (-\eta + s_1 \epsilon_1 + s_2 \epsilon_2) - \eta (s_2 \epsilon_1 + s_1 \epsilon_2) + \epsilon_1 \epsilon_2 >0.$$
+
+Figure \ref{fig.exMuth} shows how a shock in the supply of input 2 is transmitted in the Muth model. Observe that the shift affects the demand for input 1 and input 2.
+
+\begin{figure}[htbp]
+\vspace{0.2in}
+\begin{center}
+    \begin{subfloat}[Output]{
+    \centering
+    \begin{picture}(200,220)
+    %%%%%%%%% Output %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){200}} %x-axis
+        \put(0,20){\vector(0,1){200}} %y-axis
+        \put(195,10){Q}
+        \put(-5,215){\makebox(0,0){P}}
+        %Lines
+        \thicklines
+        \put(0,200){\line(1,-1){160}}%Demand
+        \put(0,40){\line(4,5){120}}%Supply
+        \multiput(71.111,128.888)(-10.16,0){7}{\line(-1,0){5.08}}%Dashed line - horizontal
+        \multiput(71.111,128.888)(0,-10.89){10}{\line(0,-1){5.44}}
+        \put(160,30){$D$}
+        \put(120,195){$S^0$}
+        \color{blue}
+        \put(0,70){\line(4,5){96}}%Supply
+        \multiput(57.778,142.222)(-9.63,0){6}{\line(-1,0){4.81}}%Dashed line - horizontal
+        \multiput(57.778,142.222)(0,-10.85){12}{\line(0,-1){5.09}}
+        \put(96,195){$S^1$}
+        \put(25,71.25){\vector(0,1){30}}
+    \end{picture}
+    }
+    \label{fig.food}
+    \end{subfloat}\\
+    \vspace{0.3in}
+    \begin{subfloat}[Input 1]{
+    \centering
+    \begin{picture}(180,200)
+    %%%%%%%%% Input 1 %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,7.5){$x_1$}
+        \put(-5,195){\makebox(0,0){$w_1$}}
+        %Lines
+        \thicklines
+        \put(0,180){\line(1,-1){140}}%Demand
+        \put(0,45){\line(1,1){135}}%Supply
+        \multiput(67.5,112.5)(-9.64,0){7}{\line(-1,0){4.82}}%Dashed line - horizontal
+        \multiput(67.5,112.5)(0,-10.28){9}{\line(0,-1){5.14}}
+        \put(140,30){$D_1^0$}
+        \put(135,185){$S_1$}
+        \color{blue}
+        \put(0,160){\line(1,-1){120}}%Demand
+        \multiput(57.5,102.5)(-9.58,0){6}{\line(-1,0){4.79}}%Dashed line - horizontal
+        \multiput(57.5,102.5)(0,-10.30){8}{\line(0,-1){5.15}}
+        \put(120,30){$D_1^1$}
+        \put(25,155){\vector(0,-1){20}}
+    \end{picture}
+    }
+    \label{fig.input1}
+    \end{subfloat}
+    \hspace{0.15in}
+    \begin{subfloat}[Input 2]{
+    \centering
+    \begin{picture}(180,200)
+    %%%%%%%%% Input 2 %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,10){$x_2$}
+        \put(-5,195){\makebox(0,0){$w_2$}}
+        %Lines
+        \thicklines
+        \put(0,180){\line(1,-1){140}}%Demand
+        \put(0,70){\line(2,1){150}}%Supply
+        \multiput(73.33,106.67)(-10.48,0){7}{\line(-1,0){5.24}}%Dashed line - horizontal
+        \multiput(73.33,106.67)(0,-9.63){9}{\line(0,-1){4.815}}
+        \put(140,30){$D_2^0$}
+        \put(155,145){$S_2^0$}
+        \color{blue}
+        \put(0,160){\line(1,-1){120}}%Demand
+        \put(0,110){\line(2,1){150}}%Supply
+        \multiput(33.33,126.67)(-11.11,0){3}{\line(-1,0){5.55}}%Dashed line - horizontal
+        \multiput(33.33,126.67)(0,-9.697){11}{\line(0,-1){4.85}}
+        \put(120,30){$D_2^1$}
+        \put(155,185){$S_2^1$}
+        \put(25,155){\vector(0,-1){20}}
+        \color{black}
+        \put(125,132.5){\vector(0,1){40}}
+    \end{picture}
+    }
+    \label{fig.input2}
+    \end{subfloat}
+\end{center}
+\caption{Example of Muth model solution: increase in the cost of input 2}\label{fig.exMuth}
+\end{figure}
+
+### Supply elasticity in the Muth model
+The supply function for the final output is derived from the production technology and the supply of input 1 and input 2. How can we calculate the supply elasticity of output? I describe two methods below.
+
+First, we can simply use the definition of the elasticity of supply and consider a shift in the demand. That is, calculate the ratio of $EQ$ and $EP$ for a given $\alpha$ with all other shifters equal to zero
+$$\epsilon = \frac{EQ}{EP}\big|_{\beta_1=\beta_2=\delta=\gamma=0, \alpha>0} = \frac{\epsilon_1 \epsilon_2 + \sigma(s_1 \epsilon_1 + s_2 \epsilon_2)}{\sigma + s_1 \epsilon_2 + s_2 \epsilon_1}.$$
+Second, we can consider a perfectly elastic demand and a $1\%$ shift in the demand.
+$$ \epsilon = \lim_{\eta\rightarrow - \infty} EQ\big|_{\beta_1=\beta_2=\delta=\gamma=0, \alpha=0.01}  = \frac{\epsilon_1 \epsilon_2 + \sigma(s_1 \epsilon_1 + s_2 \epsilon_2)}{\sigma + s_1 \epsilon_2 + s_2 \epsilon_1}.$$
+Figure \ref{fig.elasMuth} shows how we can obtain the elasticity of supply in the Muth model.
+
+\begin{figure}[htbp]
+\vspace{0.2in}
+\begin{center}
+    \begin{subfloat}[Method 1]{
+    \centering
+    \begin{picture}(180,200)
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,7.5){$Q$}
+        \put(-5,195){\makebox(0,0){$P$}}
+        %Lines
+        \thicklines
+        \put(0,140){\line(1,-1){100}}%Demand
+        \put(0,45){\line(1,1){135}}%Supply
+        \multiput(47.5,92.5)(-9.5,0){5}{\line(-1,0){4.75}}%Dashed line - horizontal
+        \multiput(47.5,92.5)(0,-10.36){7}{\line(0,-1){5.18}}
+        \put(100,30){$D^0$}
+        \put(135,185){$S$}
+        \put(45,7.5){$Q^0$}
+        \put(-10,92.5){$P^0$}
+        \color{blue}
+        \put(0,180){\line(1,-1){140}}%Demand
+        \multiput(67.5,112.5)(-9.64,0){7}{\line(-1,0){4.82}}%Dashed line - horizontal
+        \multiput(67.5,112.5)(0,-10.28){9}{\line(0,-1){5.14}}
+        \put(140,30){$D^1$}
+        \put(65,7.5){$Q^1$}
+        \put(-10,112.5){$P^1$}
+    \end{picture}
+    \vspace{0.55in}
+    }
+    \label{fig.method1}
+    \end{subfloat}
+    \hspace{0.15in}
+    \begin{subfloat}[Method 2]{
+    \centering
+    \begin{picture}(180,200)
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,10){$Q$}
+        \put(-5,195){\makebox(0,0){$P$}}
+        %Lines
+        \thicklines
+        \put(0,95){\line(1,0){160}}%Demand
+        \put(0,45){\line(1,1){135}}%Supply
+        \multiput(50,95)(0,-10.71){7}{\line(0,-1){5.357}}
+        \put(165,95){$D^0$}
+        \put(135,185){$S$}
+        \put(-12.5,95){$P^0$}
+        \put(50,7.5){$Q^0$}
+        \color{blue}
+        \put(0,145){\line(1,0){160}}%Demand
+        \multiput(100,145)(0,-10.42){12}{\line(0,-1){5.21}}
+        \put(165,145){$D^1$}
+        \put(-12.5,145){$P^1$}
+        \put(100,7.5){$Q^1$}
+        \color{black}
+        \put(-2,120){\makebox(0,0){$\left\{\rule{0pt}{27pt}\right.$}}
+        \put(-35,120){$\alpha=1\%$}
+    \end{picture}
+    \vspace{0.15in}
+    }
+    \label{fig.Method2}
+    \end{subfloat}
+\end{center}
+\caption{Supply elasticity in Muth model}\label{fig.elasMuth}
+\end{figure}
+
+We can also derive the elasticities of demand for input 1 and input 2 using similar methods.
+
+### Mirror image of Muth model
+
+The model in @Muth1964 considers 2 inputs and one output. The model can easily be adapted to consider 2 outputs and one input by simply redefining elasticities.
+
+### Muth's model: dual approach
+The Muth model can also be represented into its dual form. The equations of the model become
+\begin{align}
+\text{Output demand: } & Q =f(P:a); \label{eq.dual_muth_demand}\\
+\text{Profit function: } & P Q - C(w_1,w_2)Q = 0;\label{eq.dual_muth_prof}\\
+\text{Demand for input 1: } & x_1 = h_1(w_1,w_2) Q = C_1 Q;\label{eq.muth_dual_demand1}\\
+\text{Demand for input 2: } & x_2 = h_2(w_1,w_2) Q = C_2 Q;\label{eq.muth_dual_demand2}\\
+\text{Supply of input 1: } & x_1 = g_1(w_1: b_1);\label{eq.muth_dual_supply1}\\
+\text{Supply of input 2: } & x_2 = g_2(w_2: b_2)\label{eq.muth_dual_supply2}.
+\end{align}
+The zero profit condition and the assumption of constant return to scales imply that we can write that
+\begin{equation*}\tag{\ref{eq.dual_muth_prof}a}\label{eq.dual_muth_profa}
+P = C(w_1,w_2).
+\end{equation*}
+Equations \eqref{eq.muth_dual_demand1} and \eqref{eq.muth_dual_demand2} are derived using Shephard's lemma.
+
+Let me write the differential of some of equations of the model in terms of elasticity. Taking the total differential of \eqref{eq.dual_muth_profa} yields
+$$ dP = C_1 d w_1 + C_2 d w_2.$$
+Dividing the right-hand side by $P$ and the left-hand side by $C(w_1,w_2)$ we can write that
+$$ \frac{dP}{P} = \frac{w_1 C_1}{C(w_1,w_2)} \frac{d w_1}{w_1} + \frac{w_2 C_2}{C(w_2,w_2)} \frac{d w_2}{w_2}.$$
+Thus, we can write that
+\begin{equation*}\tag{\ref{eq.dual_muth_prof}'}
+EP = s_1 E w_1 + s_2 E w_2.
+\end{equation*}
+
+After simplification, we can write the differential of \eqref{eq.muth_dual_demand1} as
+$$ E x_1 = \eta_{11} E w_1 + \eta_{12} E w_2 + EQ.$$
+We can use some identities to simplify this expression.^[Under constant return to scale, the elasticity of substitution for the cost function is given by $\sigma_{ij}^{\ast} = \frac{h_{ij}C}{h_i h_j}= \frac{C_{ij}C}{C_i C_j}$, where $\sigma_{ij}^{\ast}=1/\sigma_{ij}$.] From the results in the appendix, we can write that $\sigma_{ij} = s_j \eta_{ij}$. Because there are two inputs, homogeneity of demand implies that $\eta_{ii} = -\eta_{ij}$.^[Recall that there is no income effect for the demand by a firm and that the Marshallian demand equals the Hicksian demand.] Also, symmetry of the Hicksian elasticities implies that the elasticity of substitution is also symmetric such that we can write $\sigma_{ij} = \sigma_{ji} = \sigma$. Thus, using these equalities we can write that
+\begin{equation*}\tag{\ref{eq.muth_dual_demand1}'}
+E x_1 = - \frac{\sigma}{s_2} E w_1 + \frac{\sigma}{s_2} E w_2 + EQ.
+\end{equation*}
+Similarly, we can write the differential of \eqref{eq.muth_dual_demand2} in elasticity form as
+\begin{equation*}\tag{\ref{eq.muth_dual_demand2}'}
+E x_2 = \frac{\sigma}{s_1} E w_1 - \frac{\sigma}{s_1} E w_2 + EQ.
+\end{equation*}
+
+The dual of the Muth model is equivalent to its primal form. However, it is more difficult to deal with neutral or biased technical changes in the dual of the Muth model. I did not include technical changes in the equations above. We will see how to include technical change in the dual model by using factor augmentation in the section of the course on technical change.
+
+### Application of Muth's model: marketing margins
+Marketing margin (or price spread) is the difference between the price paid by consumers and the price paid to producers, i.e. $MM_i \equiv P-w_i$. Consumers, farmers and governments are interested in knowing whether marketing margins are ``too large'' which could indicate market power, how they vary over time and how they respond to shocks in demand and supply. The USDA publishes data on price margins. See @Tomek2003 for details on marketing margins.
+
+Using the concept of marketing margin for any policy analysis is questionable. To be valid, the concept requires fixed factor proportions. Otherwise, a shock affects the mix of products therefore invalidating comparison of marketing margins before and after a shock.
+
+We will see below how we can study the response of marketing margins using the Muth model. Before, we describe other models that describe marketing margins.
+
+#### Traditional model of marketing margin
+The traditional model simply involves modeling marketing margins using an affine function
+$$ w_i = \alpha_i + \beta_i P.$$
+This approach does not involve economic theory. The expression above is often estimated to obtain price transmission elasticities that are used to calibrate linear programming models. In summary, this model:
+
+- Can calculate elasticity of price transmission;
+- Determine whether margins are constant, increasing or decreasing;
+- Does not involve economic theory;
+- May be difficult to reconcile with data;
+- May imply strange derived demand elasticities.
+
+#### Fixed proportion model
+In this model the margins are explained by the service of middlemen that link the producers to the consumers.
+
+- Think of marketing margins as the price of the inputs supplied by the middlemen;
+- Use model of demand and supply of input to explain changes in marketing services;
+- Data are not consistent with the combined assumption of competition and fixed factor proportion.
+
+
+#### The model of @Gardner1975
+@Gardner1975 asks how do shifts in supply or demand affect the retail-farm price ratio? This is equivalent to asking how supply or demand conditions affect marketing margins. The model in @Gardner1975 is identical to the model in @Muth1964. We will use the same notation as in the section where we derive the Muth model.
+
+The percentage change in the retail-farm price ratio is defined as
+$$E\left(\frac{P}{w_1}\right) = EP - E w_1.$$
+We consider that input 1 is the farm input and that input 2 corresponds to other marketing inputs. We assume that the farm input is more inelastically supplied than the marketing input i.e. $\epsilon_1 < \epsilon_2$.
+
+#### Demand shift
+Consider a positive shift in demand, $\alpha>0$, that can be attributed for example to income growth. From the results in equations \ref{eq.muth_demand_2} to \ref{eq.muth_supply2_2}, we find that
+$$ E\left(\frac{P}{w_1}\right) = \frac{-\eta s_2(\epsilon_1 - \epsilon_2) \alpha}{D}<0,$$
+where recall that $D>0$. Thus, a positive shift in demand causes the marketing margin to decrease. That is because the farm input, which is inelastic, captures the rent from the shift in demand. Figure \ref{fig.demandmarg} shows this.
+
+\begin{figure}[htbp]
+\vspace{0.2in}
+\begin{center}
+    \begin{subfloat}[Output]{
+    \centering
+    \begin{picture}(200,220)
+    %%%%%%%%% Output %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,7.5){$Q$}
+        \put(-5,195){$P$}
+        %Lines
+        \thicklines
+        \put(0,140){\line(1,-1){100}}%Demand
+        \put(0,45){\line(1,1){135}}%Supply
+        \multiput(47.5,92.5)(-9.5,0){5}{\line(-1,0){4.75}}%Dashed line - horizontal
+        \multiput(47.5,92.5)(0,-10.36){7}{\line(0,-1){5.18}}
+        \put(100,30){$D_1^0$}
+        \put(135,185){$S_1$}
+        \put(45,7.5){$Q^0$}
+        \put(-10,92.5){$P^0$}
+        \put(25,115){\vector(0,1){40}}
+        \color{blue}
+        \put(0,180){\line(1,-1){140}}%Demand
+        \multiput(67.5,112.5)(-9.64,0){7}{\line(-1,0){4.82}}%Dashed line - horizontal
+        \multiput(67.5,112.5)(0,-10.28){9}{\line(0,-1){5.14}}
+        \put(140,30){$D_1^1$}
+        \put(65,7.5){$Q^1$}
+        \put(-10,112.5){$P^1$}
+        \color{black}
+    \end{picture}
+    }
+    \end{subfloat}\\
+    \vspace{0.3in}
+    \begin{subfloat}[Farm input]{
+    \centering
+    \begin{picture}(180,200)
+    %%%%%%%%% Input 1 %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,7.5){$x_1$}
+        \put(-5,195){\makebox(0,0){$w_1$}}
+        %Lines
+        \thicklines
+        \put(0,180){\line(1,-1){140}}%Demand
+        \put(0,45){\line(1,1){135}}%Supply
+        \multiput(67.5,112.5)(-9.64,0){7}{\line(-1,0){4.82}}%Dashed line - horizontal
+        \multiput(67.5,112.5)(0,-10.28){9}{\line(0,-1){5.14}}
+        \put(140,30){$D_1^0$}
+        \put(135,185){$S_1$}
+        \put(57.5,7.5){$x_1^0$}
+        \put(-10,102.5){$w_1^0$}
+        \color{blue}
+        \put(0,160){\line(1,-1){120}}%Demand
+        \multiput(57.5,102.5)(-9.58,0){6}{\line(-1,0){4.79}}%Dashed line - horizontal
+        \multiput(57.5,102.5)(0,-10.30){8}{\line(0,-1){5.15}}
+        \put(120,30){$D_1^1$}
+        \put(67.5,7.5){$x_1^1$}
+        \put(-10,112.5){$w_1^1$}
+        \put(25,135){\vector(0,1){20}}
+    \end{picture}
+    }
+    \end{subfloat}
+    \hspace{0.15in}
+    \begin{subfloat}[Marketing input]{
+    \centering
+    \begin{picture}(180,200)
+    %%%%%%%%% Input 2 %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,7.5){$x_2$}
+        \put(-10,195){$w_2$}
+        %Lines
+        \thicklines
+        \put(0,160){\line(1,-1){120}}%Demand
+        \put(0,45){\line(1,1){135}}%Supply
+        \multiput(57.5,102.5)(-9.58,0){6}{\line(-1,0){4.79}}%Dashed line - horizontal
+        \multiput(57.5,102.5)(0,-10.30){8}{\line(0,-1){5.15}}
+        \put(120,30){$D_2^0$}
+        \put(135,185){$S_2$}
+        \put(57.5,7.5){$x_2^0$}
+        \put(-10,102.5){$w_2^0$}
+        \color{blue}
+        \put(0,180){\line(1,-1){140}}%Demand
+        \multiput(67.5,112.5)(-9.64,0){7}{\line(-1,0){4.82}}%Dashed line - horizontal
+        \multiput(67.5,112.5)(0,-10.28){9}{\line(0,-1){5.14}}
+        \put(140,30){$D_2^1$}
+        \put(67.5,7.5){$x_2^1$}
+        \put(-10,112.5){$w_2^1$}
+        \put(25,135){\vector(0,1){20}}
+    \end{picture}
+    }
+    \end{subfloat}
+\end{center}
+\caption{Shock on demand and marketing margin $(Ew_1>EP)$}\label{fig.demandmarg}
+\end{figure}
+
+
+#### Marketing input supply shift
+Consider that the supply of the marketing input shifts up, $\beta_2<0$, for example because of an exogenous increase in worker wage. The percentage change in the retail-farm price ratio is given by
+$$ E\left(\frac{P}{w_1}\right) = \frac{-\epsilon_2 s_1(\epsilon_1 - \eta) \beta_2}{D}>0.$$
+Thus, a positive shift in the supply of the marketing input increases the marketing margin. Figure \ref{fig.supplymarg} shows this.
+
+\begin{figure}[htbp]
+\vspace{0.2in}
+\begin{center}
+    \begin{subfloat}[Output]{
+    \centering
+    \begin{picture}(200,220)
+    %%%%%%%%% Output %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){220}} %x-axis
+        \put(0,20){\vector(0,1){200}} %y-axis
+        \put(195,10){Q}
+        \put(-10,215){P}
+        %Lines
+        \thicklines
+        \put(0,200){\line(1,-1){160}}%Demand
+        \put(0,40){\line(4,5){120}}%Supply
+        \multiput(71.111,128.888)(-10.16,0){7}{\line(-1,0){5.08}}%Dashed line - horizontal
+        \multiput(71.111,128.888)(0,-10.88){10}{\line(0,-1){5.44}}
+        \put(160,30){$D$}
+        \put(120,195){$S^0$}
+        \put(71.11,7.5){$Q^0$}
+        \put(-10,129){$P^0$}
+        \color{blue}
+        \put(0,70){\line(4,5){96}}%Supply
+        \multiput(57.778,142.222)(-9.63,0){6}{\line(-1,0){4.81}}%Dashed line - horizontal
+        \multiput(57.778,142.222)(0,-10.85){12}{\line(0,-1){5.09}}
+        \put(96,195){$S^1$}
+        \put(57.78,7.5){$Q^1$}
+        \put(-10,142){$P^1$}
+        \put(25,71.25){\vector(0,1){30}}
+    \end{picture}
+    }
+    \label{fig.food_2}
+    \end{subfloat}\\
+    \vspace{0.3in}
+    \begin{subfloat}[Farm input]{
+    \centering
+    \begin{picture}(180,200)
+    %%%%%%%%% Input 1 %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,7.5){$x_1$}
+        \put(-10,195){$w_1$}
+        %Lines
+        \thicklines
+        \put(0,180){\line(1,-1){140}}%Demand
+        \put(50,45){\line(1,4){30}}%Supply
+        \multiput(67.5,112.5)(-9.64,0){7}{\line(-1,0){4.82}}%Dashed line - horizontal
+        \multiput(67.5,112.5)(0,-10.28){9}{\line(0,-1){5.14}}
+        \put(140,30){$D_1^0$}
+        \put(80,170){$S_1$}
+        \put(67.5,7.5){$x_1^0$}
+        \put(-10,112.5){$w_1^0$}
+        \color{blue}
+        \put(0,160){\line(1,-1){120}}%Demand
+        \multiput(63,97)(-10.5,0){6}{\line(-1,0){5.25}}%Dashed line - horizontal
+        \multiput(63,97)(0,-9.625){8}{\line(0,-1){4.81}}
+        \put(120,30){$D_1^1$}
+        \put(60,7.5){$x_1^1$}
+        \put(-10,100){$w_1^1$}
+        \put(25,155){\vector(0,-1){20}}
+    \end{picture}
+    }
+    \label{fig.input1_2}
+    \end{subfloat}
+    \hspace{0.15in}
+    \begin{subfloat}[Marketing input]{
+    \centering
+    \begin{picture}(180,200)
+    %%%%%%%%% Input 2 %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,10){$x_2$}
+        \put(-10,195){$w_2$}
+        %Lines
+        \thicklines
+        \put(0,180){\line(1,-1){140}}%Demand
+        \put(0,70){\line(2,1){150}}%Supply
+        \multiput(73.33,106.67)(-10.48,0){7}{\line(-1,0){5.24}}%Dashed line - horizontal
+        \multiput(73.33,106.67)(0,-9.63){9}{\line(0,-1){4.815}}
+        \put(140,30){$D_2^0$}
+        \put(155,145){$S_2^0$}
+        \put(73.3,7.5){$x_2^0$}
+        \put(-10,106.67){$w_2^0$}
+        \color{blue}
+        \put(0,160){\line(1,-1){120}}%Demand
+        \put(0,110){\line(2,1){150}}%Supply
+        \multiput(33.33,126.67)(-11.11,0){3}{\line(-1,0){5.55}}%Dashed line - horizontal
+        \multiput(33.33,126.67)(0,-9.697){11}{\line(0,-1){4.85}}
+        \put(120,20){$D_2^1$}
+        \put(155,185){$S_2^1$}
+        \put(33.3,7.5){$x_2^1$}
+        \put(-10,126.67){$w_2^1$}
+        \put(25,155){\vector(0,-1){20}}
+        \color{black}
+        \put(125,132.5){\vector(0,1){40}}
+    \end{picture}
+    }
+    \label{fig.input2_2}
+    \end{subfloat}
+\end{center}
+\caption{Shock on the supply of the marketing input $(EP>Ew_1)$}\label{fig.supplymarg}
+\end{figure}
+
+
+#### Farm input supply shift
+Now consider that the supply of the farm product shifts up, $\beta_1<0$, because for example of a drought. In such case, the percentage change in the retail-farm price ratio is given by
+$$ E\left(\frac{P}{w_1}\right) = \frac{\epsilon_1 s_2(\epsilon_2 - \eta) \beta_1}{D}<0.$$
+That is, a negative shift in the supply of the farm product reduces the marketing margin. Figure \ref{fig.supplyfarm} shows this.
+
+\begin{figure}[htbp]
+\vspace{0.2in}
+\begin{center}
+    \subfloat[Output]{
+    \centering
+    \begin{picture}(200,200)
+    %%%%%%%%% Output %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){220}} %x-axis
+        \put(0,20){\vector(0,1){200}} %y-axis
+        \put(195,10){Q}
+        \put(-10,215){P}
+        %Lines
+        \thicklines
+        \put(0,200){\line(1,-1){160}}%Demand
+        \put(0,40){\line(4,5){120}}%Supply
+        \multiput(71.111,128.888)(-10.16,0){7}{\line(-1,0){5.08}}%Dashed line - horizontal
+        \multiput(71.111,128.888)(0,-10.88){10}{\line(0,-1){5.44}}
+        \put(160,30){$D$}
+        \put(120,195){$S^0$}
+        \put(71.11,7.5){$Q^0$}
+        \put(-10,129){$P^0$}
+        \color{blue}
+        \put(0,70){\line(4,5){96}}%Supply
+        \multiput(57.778,142.222)(-9.63,0){6}{\line(-1,0){4.81}}%Dashed line - horizontal
+        \multiput(57.778,142.222)(0,-10.85){12}{\line(0,-1){5.09}}
+        \put(96,195){$S^1$}
+        \put(57.78,7.5){$Q^1$}
+        \put(-10,142){$P^1$}
+        \put(25,71.25){\vector(0,1){30}}
+    \end{picture}
+    \label{fig.food_3}
+    }\\
+    \vspace{0.3in}
+    \subfloat[Farm input]{
+    \centering
+    \begin{picture}(180,200)
+    %%%%%%%%% Input 1 %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,10){$x_1$}
+        \put(-10,195){$w_1$}
+        %Lines
+        \thicklines
+        \put(0,180){\line(1,-1){140}}%Demand
+        \put(50,45){\line(1,4){30}}%Supply
+        \multiput(67,113)(-9.57,0){7}{\line(-1,0){4.79}}%Dashed line - horizontal
+        \multiput(67,113)(0,-10.33){9}{\line(0,-1){5.17}}
+        \put(140,30){$D_1^0$}
+        \put(80,170){$S_1^0$}
+        \put(67,7.5){$x_1^0$}
+        \put(-10,113){$w_1^0$}
+        \color{blue}
+        \put(0,160){\line(1,-1){120}}%Demand
+        \put(10,45){\line(1,4){30}}%Supply
+        \multiput(31,129)(-10.333,0){3}{\line(-1,0){5.166}}%Dashed line - horizontal
+        \multiput(31,129)(0,-9.909){11}{\line(0,-1){4.955}}
+        \put(120,30){$D_1^1$}
+        \put(40,170){$S_1^1$}
+        \put(31,7.5){$x_1^1$}
+        \put(-10,129){$w_1^1$}
+        \put(100,80){\vector(0,-11){20}}
+        \color{black}
+        \put(60,85){\vector(-1,0){40}}
+    \end{picture}
+    \label{fig.input1_3}
+    }
+    \hspace{0.15in}
+    \subfloat[Marketing input]{
+    \centering
+    \begin{picture}(180,200)
+    %%%%%%%%% Input 2 %%%%%%%%%%%%%%
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,7.5){$x_2$}
+        \put(-10,195){$w_2$}
+        %Lines
+        \thicklines
+        \put(0,180){\line(1,-1){140}}%Demand
+        \put(0,45){\line(1,1){135}}%Supply
+        \multiput(67.5,112.5)(-9.64,0){7}{\line(-1,0){4.82}}%Dashed line - horizontal
+        \multiput(67.5,112.5)(0,-10.28){9}{\line(0,-1){5.14}}
+        \put(140,30){$D_1^0$}
+        \put(135,185){$S_1$}
+        \put(67.5,7.5){$x_2^0$}
+        \put(-10,112.5){$w_2^0$}
+        \color{blue}
+        \put(0,160){\line(1,-1){120}}%Demand
+        \multiput(57.5,102.5)(-9.58,0){6}{\line(-1,0){4.79}}%Dashed line - horizontal
+        \multiput(57.5,102.5)(0,-10.30){8}{\line(0,-1){5.15}}
+        \put(120,30){$D_1^1$}
+        \put(57.5,7.5){$x_2^1$}
+        \put(-10,102.5){$w_2^1$}
+        \put(25,155){\vector(0,-1){20}}
+    \end{picture}
+    \label{fig.input2_3}
+    }
+    \end{center}
+\caption{Shock on the supply of the farm input $(EP< Ew_1)$}\label{fig.supplyfarm}
+\end{figure}
+
+
+#### Other results
+@Gardner1975 uses his model to derive other results. For instance, we can easily calculate how shocks affect the *farmers' share of food dollar* defined by
+$$ s_1=\frac{w_1 x_1}{P Q}.$$
+In percentage change, this expression becomes
+$$ Es_1=Ew_1 + Ex_1 - EP - EQ.$$
+Using the results in equations \ref{eq.muth_demand_2} to \ref{eq.muth_supply2_2} we can easily find what affect the farmers' share of food dollar.
+
+The Muth model can also be used to find the effect of *price control*. In a price control scheme, the price is fixed by an agency rather than being determined by the market. Figure \ref{fig.pricecontrol} shows an example of price control for the output.
+
+\begin{figure}[htbp]
+\begin{center}
+    \begin{picture}(240,240)
+        %Axises and labels
+        \scriptsize
+        \put(0,0){\vector(1,0){220}} %x-axis
+        \put(0,0){\vector(0,1){220}} %y-axis
+        \put(215,-10){$Q$}
+        \put(-5,210){\makebox(0,0){$P$}}
+        %Lines
+        \thicklines
+        \put(0,75){\line(1,0){200}}%Demand
+        \put(0,25){\line(1,1){175}}%Supply
+        \multiput(50,75)(0,-10.71){7}{\line(0,-1){5.357}}
+        \put(205,75){$D^0$}
+        \put(175,205){$S$}
+        \put(-12.5,75){$P^0$}
+        \put(50,-12.5){$Q^0$}
+        \color{blue}
+        \put(0,125){\line(1,0){200}}%Demand
+        \multiput(100,125)(0,-10.42){12}{\line(0,-1){5.21}}
+        \put(205,125){$D^1$}
+        \put(-12.5,125){$P^1$}
+        \put(100,-12.5){$Q^1$}
+        \color{black}
+        \put(180,75){\vector(0,1){50}}
+    \end{picture}
+\vspace{0.2in}
+\caption{Output price control}\label{fig.pricecontrol}
+\end{center}
+\end{figure}
+
+In a price control system for the final output, the demand for the output becomes perfectly elastic, i.e. $\eta\rightarrow-\infty$, and any change in the controlled price can be modeled using $\alpha$ such that $EP=\alpha$. To derive the percentage change in the marketing margin, we must begin by taking the limit of the percentage change in the farm price using l'Hospital rule
+$$ \lim_{\eta \rightarrow - \infty} E w_1 = \lim_{\eta \rightarrow - \infty} \frac{-\eta(\sigma + \epsilon_2) \alpha}{\sigma (-\eta + s_1 \epsilon_1 + s_2 \epsilon_2) - \eta (s_2 \epsilon_1 + s_1 \epsilon_2) + \epsilon_1 \epsilon_2 } = \frac{(\sigma + \epsilon_2) \alpha}{\sigma + s_2 \epsilon_1 + s_1 \epsilon_2}.$$
+Thus, we can write that
+$$ E\left(\frac{P}{w_1}\right) = \alpha -  \frac{(\sigma + \epsilon_2) \alpha}{\sigma + s_2 \epsilon_1 + s_1 \epsilon_2}.$$
+This is not, however, the result derived by @Gardner1975 who seems to consider only $E w_1$... @Gardner1975 also derives results for price control for the farm product and for the elasticity of price transmission.
+
+## Equilibrium displacement models in policy analysis
+Equilibrium displacement models are often used to quantify the effects of new policies. These models can be adapted to any policy analysis and be comprehensive. Equilibrium displacement models can deal well with small changes but it is more difficult to make a convincing argument with large changes. Remember that a displacement model yields a log-linear approximation of the impact of a shock around an equilibrium point. If a shock is large enough and the true functions are not log-linear, a displacement model would not yield correct results.
+
+### Choice of elasticities
+One big question is what elasticities to use in an equilibrium displacement model. Economists often disagree regarding what elasticities should be used. Reliable estimates of elasticities are not always available. The options are
+
+i. Econometric estimates of elasticities found in the literature or own estimates;
+    - Credible (?) and supported by the data;
+    - Point estimates;
+    - Were the data used to estimate elasticities similar to those used to calibrate the model? For example, do they have correct level of aggregation and the correct length of run?
+    - Are econometric estimates of elasticities even available?
+ii. Elasticities generated by linear programming models;
+    - For example FAPRI makes available the elasticities used in its model;
+    - Similar problems as for econometric estimates.
+iii. Guestimates found in the literature;
+    - Supported by other researchers;
+    - Appropriate?
+iv. Own guestimates;
+    - Elasticities that may be appropriate for the analysis;
+    - Can be difficult to make a convincing argument. Experience of the analyst may be important in choose the correct elasticities.
+    - May be criticized on the ground that the choice of elasticities was geared toward obtaining a certain result.
+
+### Length of run
+Static equilibrium displacement models can be used for different length of run:
+
+- More elastic supply implies longer run;
+- How large should the supply elasticity be to yield correct results for the length of run that the analysis is carried on?
+- What is the actual length of run of the model?
+
+### Shock anticipation
+Another important issue in policy analysis is whether the policy shock is anticipated. If yes, then firms may adapt to a change in policy before it is implemented. However, if the shock is not anticipated, then firms are more restricted in their capacity to adapt to the policy change. Thus, if the policy shock is not anticipated, then the consequences are much different than for a shock that has been anticipated.
+
+In event analysis, shock anticipation is a major issue to tackle. In using an equilibrium displacement model, the anticipation of a shock matters only if the model applies to the short-run. Otherwise, in the long-run, whether a shock is anticipated or not does not matter to the end equilibrium. However, one must be careful that the initial equilibrium is not ``contaminated" by the shock yet.
+
+## Sensitivity analysis in equilibrium displacement model
+Selected values for elasticities can drive the outcome of an analysis. It is therefore not surprising that the most likely critique of an equilibrium displacement model is the choice of elasticities. One response to those critiques is thus to perform a sensitivity analysis by using different combinations of values for elasticities.
+
+In a typical sensitivity analysis, it is however, practical to present only a small number of results [see for example @Gardner1975]. @Davis1998 propose to use random draws of the model parameters to obtain a distribution of outcomes from the model. The first step is to select a distribution for each parameters of the model and then take draws from these distribution (say one thousand). Then, in the second step, find the model outcomes for each draw and then derive a distribution of outcome for the model. @Griffiths2000 comment on the choice of vocabulary and the unnecessary use of Chebychev confidence intervals by @Davis1998. @Davis2000 basically agree with those comments. @Zhao2003 is an example of sensitivity analysis in equilibrium displacement models.
+
+As the values of elasticities and other parameters are often bounded, the beta distribution becomes particularly useful to generate draws of parameters in a simulation. The beta distribution $\beta(c,d) \in (0,1)$ is a function of two scale parameters $c$ and $d$. Figure \ref{fig.beta} shows the shape the beta distribution for different pairs of parameter values. The mean of a variable $x$ distributed following $\beta(c,d)$ is given by $E[x] = \frac{c}{c+d}$ and the variance is
+$$ V[x] = \frac{c d}{(c+d)^2 (c + d + 1)}.$$
+
+```{r beta, fig.cap = "Beta distribution \\label{fig.beta}"}
+N <- 1000000
+
+beta1 <- rbeta(N, 0.5, 0.5, ncp = 0)
+beta2 <- rbeta(N, 1, 1, ncp = 0)
+beta3 <- rbeta(N, 2, 2, ncp = 0)
+beta4 <- rbeta(N, 4, 4, ncp = 0)
+beta5 <- rbeta(N, 2, 5, ncp = 0)
+beta6 <- rbeta(N, 5, 2, ncp = 0)
+
+dta_graph <- cbind(value = beta1, par = "c=1/2, d=1/2") %>% 
+  rbind(cbind(beta2, "c=1, d=1")) %>%
+  rbind(cbind(beta3, "c=2, d=2")) %>%
+  rbind(cbind(beta4, "c=4, d=4")) %>%
+  rbind(cbind(beta5, "c=2, d=5")) %>%
+  rbind(cbind(beta6, "c=5, d=2")) %>%
+  as.tibble() %>%
+  mutate(value = as.numeric(value))
+  
+ggplot(dta_graph, aes(value)) +
+  geom_density(size = 1, alpha = 0.5, fill="gray") +
+  facet_wrap(~par, nrow = 3) +
+  ylab("Density") +
+  theme_bw() + mytheme +
+  theme(axis.title.x=element_blank(),
+        axis.line = element_line(color='black'),
+        strip.background = element_blank(),
+        axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
+
+
+```
+
+Most parameters of a model are, of course, not distributed between zero and one. To expand the range of value, it is convenient to use an affine transformation of a beta distribution. Let $x$ be a variable that is distributed following a beta distribution. Suppose that you want to generate draws for a variable $y$, with a mean $\bar{y}$, a variance $y_{var}$, a minimum $y_{\min}$ and a maximum $y_{\max}$. Based on draws of $x$, values for $y$ can be generated as
+$$ y = y_{\min} + (y_{\max} - y_{\min}) x.$$
+Values for the parameters $c$ and $d$ can then be recovered using the first two moments of the distribution
+$$ \bar{y} = y_{\min} + (y_{\max} - y_{\min}) E[x],$$
+$$y_{var} = (y_{\max} - y_{\min})^2 V[x].$$
+Most of the time, it is possible to find empirical estimates that help you decide of the mean value of a parameter. Estimates from the literature and your own knowledge may the help you decide of values for the minimum and the maximum. However, for the variance, it is more difficult to find information and to decide of the value to use. In such a case, one solution, although not ideal, is to set $c$ to a high value, e.g. $c=5$, and use the mean of $y$ to find the value of $d$. Selecting a high value for $c$ assures that the distribution of $y$ is bell-shaped.
+
+## Market power in equilibrium displacement models
+See for example @Holloway1991 or @Fulton1999.
+
+## Stochastic supply chain models
+An equilibrium displacement model is not the only approach to conduct policy analysis. A common approach is to specify and calibrate functional forms to observed market data. This is the approach that is typically taken when looking at the impact of policies on crops when corner solutions are likely to matter. The emphasis in these models is that market outcomes can be very different depending on the realized yields.
+
+In the model we will one or more variables in the model are stochastic and exogenous. This is different than sensitivity analysis where we look by how much the results change when parameters of the model take different values. We will assume here that the parameters of the model are correct.
+
+### Stochastic yields
+The total quantity produced of a crop is the product of the area harvested $H$ and and the yield $Y$: $C = H*Y$. The area harvested is usually estimated months in advance with little noise. Yields however can vary greatly. In May 2015 the USDA World Agricultural Supply and Demand Estimate (WASDE) report predicted planting of 89.2 million acres of corn, which 81.7 million acres would be harvested, a yield of 166.8 bushels per acre for a total for a total production of 13,630 million bushels.^[See May 2015 WASDE report at <http://usda.mannlib.cornell.edu/usda/waob/wasde//2010s/2015/wasde-05-12-2015.pdf>.] In October 2015, after harvest had begun, the USDA estimated that the corn planted area was 88.4 million acres and the area harvested will be 80.7 million acres, a yield of 168 bushels per acre and a total production of 13,555 million bushels.^[See October 2015 WASDE report at <http://usda.mannlib.cornell.edu/usda/waob/wasde//2010s/2015/wasde-10-09-2015.pdf>.] That year, the USDA predicted quite well acreage and yields but that is not always the case.
+
+Figure \ref{fig.corn_yield} shows average corn yield in the United States. Quite obviously, yields have been trending up. There is however volatility around the trend yield because of variability in growing conditions from year to year.
+
+```{r yield, fig.cap = "Historical US corn yield \\label{fig.corn_yield}"}
+
+#Download corn yield data from https://data.ers.usda.gov/FEED-GRAINS-custom-query.aspx
+corn <- read_excel("Data/Corn yield.xlsx", skip = 1) %>%
+  dplyr::select(Year, Amount) %>%
+  dplyr::rename(Date = Year, Value = Amount) %>%
+  mutate(Date = as.Date(paste(Date, "01", "01", sep = "-"), "%Y-%d-%m"))
+
+corn_yield <- ggplot(data = corn, aes(x = Date, y = Value)) +
+  geom_point(size = 0.25) +
+  theme_bw()+
+  mytheme + ylab("Bushels per acre") +
+  xlab("") +
+  scale_x_date(breaks = seq(as.Date("1870/1/1"), as.Date("2020/1/1"), "10 years"),
+               labels = date_format("%Y")) +
+  scale_y_continuous(breaks = seq(25, 175, by = 25)) +
+  theme(axis.text.x  = element_text(size=5),
+        axis.line = element_line(size = 0.5))
+
+corn_yield <- corn_yield + 
+  stat_smooth(method = "loess", se=FALSE, size=1, fullrange=T) +
+  labs(caption = "Data source: http://www.nass.usda.gov/Statistics_by_Subject/index.php.")
+
+corn_yield
+
+ggsave(plot = corn_yield, "Figures/corn_yield.png", width = 6, height = 4, units = "in", dpi = 600)
+
+
+
+
+```
+
+Figure \ref{fig.corn_percent_yield} shows percentage deviation from trend yield between 1975 and 2017. Notice in particular strong negative deviations from trend yield in 1982, 1986, 1994 and 2012.
+
+
+```{r yielddev, fig.cap = "Percentage deviation from trend yield from 1975 to 2018 \\label{fig.corn_percent_yield}"}
+
+#Keep only data after 1975
+corn <- corn %>%
+  dplyr::filter(Date >= "1975-01-01") %>%
+  mutate(Year = year(Date)) %>%
+  rename(Yield = Value)
+
+#Regression
+reg <- lm(Yield ~ Year, data = corn)
+
+corn <- corn %>%
+  mutate(yield_hat = predict(reg),
+         diff_yield = Yield - yield_hat,
+         diff_percent = diff_yield/yield_hat,
+         diff_sign = ifelse(diff_yield <= 0, "Negative", "Positive"))
+
+corn_diff_plot <- ggplot(data = corn, aes(x = Date, y = diff_yield, fill = diff_sign))  +
+  geom_bar(stat = "identity", color = "white") +
+  geom_hline(aes(yintercept = 0)) +
+  theme_bw()+ mytheme +
+  ylab("Percentage yield shock") +
+  scale_x_date(breaks = seq(as.Date("1975/1/1"),as.Date("2020/1/1"), "5 years"),
+               labels = date_format("%Y")) +
+  theme(axis.title.x = element_blank(),
+        axis.line = element_line(size = 0.5),
+        legend.position="none")
+
+corn_diff_plot
+
+```
+
+The trend yield is calculated based on a linear regression on a time trend. The trend yield for 2017, using data starting in 1975, is 167.21 bushels per acre. Table \ref{tab.yield} shows thwe regression output. Yield increases nearly by 2 bushels per acre per year.
+
+```{r regyield, results = 'asis'}
+
+stargazer(reg, title = "Linear regression for annual corn yield between 1975 and 2018", label = "tab.yield", header = FALSE)
+
+```
+
+The estimation of the distribution of yield has been a very important topic in agricultural economics [e.g. @Just1999, @Ker2003, @Hennessy2009]. The focus is typically on yield distribution at the county level. This reflects that yield data are available per county and that crop insurance are designed around county yield averages [e.g. @Moschini2001, @Babcock2004].
+
+Here the objective is to find the distribution of the average yield for the entire United States. The goal of models that consider stochastic yield is typically to derive a distribution of outcome conditional on the total size of the corn crop. Figure \ref{fig.percent_hist} shows a histogram of the percentage deviation from trend yield. The percentage deviation from trend yield is negatively skewed because negative deviations from trend yields tend to be larger than positive deviations but negative deviations happen less often. Figure \ref{fig.percent_hist} also suggests that yield distribution might be bimodal.
+
+
+```{r yieldpctdev, fig.cap = "Histogram of percentage deviation from trend yield from 1975 to 2017 \\label{fig.percent_hist}"}
+
+corn_diff_pct <- ggplot(corn, aes(x = diff_percent, y = ..density..)) + 
+  geom_histogram(binwidth = 0.02, color="white", fill = "darkgray") + 
+  geom_density(color = "black") + 
+  ylab("Density") + 
+  xlab("Percentage deviation from trend yield") + 
+  theme_bw()+ mytheme
+
+corn_diff_pct
+```
+
+A model with stochastic corn yield requires modeling the distribution of corn yield so to draw yield realizations. Figure \ref{fig.dist_yield} shows three examples of distributions for corn yield. The first example is the normal distribution with a mean of zero and a standard deviation that equals the standard deviation from the data. The normal distribution of however inconsistent with the skewness of the percentage deviations from the trend yield. The second example shows a distribution of corn yield modeled using a beta distribution. An advantage of the beta distribution is that it can accommodate skewness. However, the beta distribution requires the modeler to specify the bounds on the distribution. The third example is drawing from the observed percentage deviations in yield. This analogous to a bootstrap. The advantage is that it does not impose a structure on the yield distribution.
+
+```{r exdist, fig.cap = "Examples of distribution of corn yield \\label{fig.dist_yield}"}
+
+mean_percent <- mean(corn$diff_percent)
+sd_percent <- sd(corn$diff_percent)
+
+n_draw <- 100000
+
+### Normal distribution
+corn_normal <- data.frame(cbind(dyield = as.numeric(rnorm(n_draw, 0, sd_percent)), dist = "Normal"))
+
+### Beta distribution
+range <- .4
+
+alpha <- 5
+beta <- 2
+
+corn_beta <- data.frame(cbind(dyield = as.numeric(range*rbeta(n_draw, alpha, beta)- range*alpha/(alpha+beta)), dist = "Beta"))
+
+#mean(as.numeric(as.character(corn_beta$dyield)))
+
+### Draw from sample
+corn_sample <- data.frame(cbind(dyield = as.numeric(sample(corn$diff_percent, n_draw, replace = TRUE)), dist = "Empirical"))
+
+
+#Plot distributions
+dist <- rbind(rbind(corn_normal, corn_beta), corn_sample)
+dist$dyield <- as.numeric(as.character(dist$dyield))
+
+dist_yield <- ggplot(dist, aes(x = dyield, y = ..density.., fill = dist)) + 
+  geom_density(color = "black", fill = "white") + 
+  geom_histogram(alpha = 0.5, color = "black") + 
+  facet_grid(. ~ dist) + 
+  ylab("Density") + 
+  xlab("Percentage deviation from trend yield") + theme_bw()+ mytheme + 
+  theme(legend.position="none",
+        strip.background = element_blank())
+
+dist_yield
+
+```
+
+### An example with two stochastic variables
+
+An example of a simulation model with stochastic variables is @Babcock2010 where the gasoline price and the corn yield are stochastic variables.^[You can find outcomes from the model for 2012 summer crop at <http://www.card.iastate.edu/research/bio/tools/biofuel_market_outlook.aspx>. Note that @Babcock2010 did not consider a distribution of yield that included the realized yield of about 122 bushels per acre, showing how extreme the 2012 drought was.] The model presents a market outlook for biofuel in the United States. Gasoline price and corn yield are crucial variables as they determine the cost of the Renewable Fuels Standard that mandate the consumption of ethanol in the United States and how much ethanol is imported from Brazil.
+
+Consider a simple stochastic model where demand and supply are stochastic. Write the demand as $Q_d = A p_d^{-1}$ where $A \sim U(20,30)$ and write the supply as $Q_s = B p_s$ where $B \sim 5*\beta(5,5)$. Suppose that the government has a price support program where the price paid to producers cannot fall below \$3.25 per unit. If the market equilibrium price is to fall below \$3.25 per unit, the government pays suppliers \$3.25 per unit, suppliers produce along their supply curve, and consumers consume the quantity produced at a price on the demand curve. The total expenditure by the government is the difference between the supply and the demand price times the total quantity produced.
+
+Figure \ref{fig.model_variables} shows the distribution of the variables $A$ and $B$ for 10,000 draws. The shapes of the distribution is expected given the assumptions on the distributions of the two parameters.
+
+```{r stochmodel, fig.cap = "Distribution of demand and supply parameters \\label{fig.model_variables}"}
+
+#Example with a simple model
+
+#Demand
+demand <- function(A, eta, p){
+  q <- A*p^eta    
+  q
+}
+  
+#Supply
+supply <- function(B, epsilon, p){
+  q <- B*p^epsilon
+  q
+}
+
+A <- 25
+eta <- -1
+
+B <- 2
+epsilon <- 1
+
+obj <- function(p){
+  y <- demand(A,eta,p) - supply(B,epsilon,p)
+  y
+}
+
+
+#There exists an analytical solution but just to show how to this numerically let's use a numerical solver
+pacman::p_load(nleqslv)
+
+### Loop where values for A and B are random variables
+
+#I show how to do this the long way using a loop. In this simple case it would be faster to simply do the calculations across columns. but if you have a more complicated model that requires solving in multiple steps, you would have to loop over random draws as I do below
+
+#Set data frame to store the results
+n.loop <- 10000
+results <- data.frame(array(NA, c(n.loop, 6)))
+colnames(results) <- c("A", "B", "Output", "Demand price", "Supply price", "Government payment")
+
+#Set seed
+set.seed(123457)
+
+#Loop
+
+for (i in 1:n.loop){
+  
+  #Generate random values
+  results$A[i] <- runif(1, min = 20, 30)
+  A <- results$A[i]
+  results$B[i] <- 5*rbeta(1, 5, 5)
+  B <- results$B[i]
+  
+  #Solve for p
+  results[i, "Demand price"] <- nleqslv(10, obj)$x
+  results[i, "Supply price"] <- results[i, "Demand price"]
+  
+  #Government payment
+  results[i, "Government payment"] <- 0
+  
+  #Solution for q
+  results[i, "Output"] <- demand(A, eta, results[i, "Demand price"])
+  
+  #Constraint on price -  minimum is 3.25
+  min_price <- 3.25
+  
+  if(results[i, "Demand price"] < min_price){
+    results[i, "Supply price"] <- min_price
+    results[i, "Output"] <- supply(B, epsilon, min_price)
+    results[i, "Demand price"] <- (results[i, "Output"]/A)^(1/eta)
+    results[i, "Government payment"] <- results[i, "Output"]*(min_price - results[i, "Demand price"])
+  }
+}
+
+
+dta_graph <- results %>% gather(variable, value, A:B)
+
+model_variables <- ggplot(dta_graph, aes(x = value, y = ..density.., fill = variable, color = variable)) + 
+  geom_density(color = "black", fill = "white", size=1) + 
+  geom_histogram(alpha = 0.5, color="black") + 
+  facet_wrap(~ variable, scales = "free") + 
+  ylab("Density") + 
+  xlab("") + 
+  theme_bw()+ mytheme + 
+  theme(legend.position="none",
+        axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)),
+        strip.background = element_blank())
+
+model_variables
+
+```
+
+Figure \ref{fig.model_outcome} shows the distribution for the outcomes of the model. The output follow a distribution that looks almost normal. The distribution of the demand price appears bimodal and skewed to the right. The supply price is bounded below at \$3.25 per unit but the minimum price constraint is non-binding in 44.63\% of the draws. This means that with probability 55.37\% the government must make a positive payment to suppliers. Most of the time the total payment is small with a median total payment of \$1.24. The mean payment is however significantly higher at \$4.16 and this reflect that in some cases the total payment is quite high. The maximum payment is \$27.41.
+
+
+```{r stochmodel2, fig.cap = "Distribution of demand and supply parameters \\label{fig.model_outcome}"}
+
+dta_graph2 <- results %>% gather(variable, value, Output:`Government payment`)
+
+model_outcome <- ggplot(dta_graph2, aes(x = value, y = ..density.., fill = variable, color = variable)) + 
+  geom_density(color = "black", fill = "white", size=1) + 
+  geom_histogram(alpha = 0.5, color="black") + 
+  facet_wrap(~ variable, scales = "free") + 
+  ylab("Density") + 
+  xlab("") + 
+  theme_bw()+ mytheme + 
+  theme(legend.position="none",
+        strip.background = element_blank())
+
+model_outcome
+
+```
+
+The practical implication of this type of stochastic model is to show with what probability a constraint is expected to bind. For example, suppose that because of budgetary reasons the government is very concerned about having to make a payment above \$10. The stochastic model above shows that the probability of a payment of more than \$10 is 16.64\%. Such information can be very useful to guide policies.
+
+## Appendix A: Elasticity of substitution under constant return to scale 
+
+I derive below the expression for the elasticity of substitution under constant return to scale. This elasticity is sometimes referred as the Allen elasticity of substitution following @Allen1938 (in page 343). The expression for the elasticity of substitution is
+$$\sigma_{ij} = \frac{d(\frac{x_j}{x_i})}{\frac{x_j}{x_i}} \frac{\frac{q_i}{q_j}}{d(\frac{q_i}{q_j})} = \frac{ \frac{x_i}{x_j} d(\frac{x_j}{x_i})}{\frac{q_j}{q_i} d(\frac{q_i}{q_j})},$$
+where
+$$d(\frac{x_j}{x_i}) = \frac{d x_j}{x_i} - \frac{x_j}{x_i^2} d x_i = \frac{x_i d x_j - x_j d x_i}{x_i^2}.$$
+Because of the assumption of constant return to scale we can write that
+\begin{align*}
+d(\frac{q_i}{q_j}) =& \frac{1}{q_j}(q_{ii} d x_i + q_{ij} d x_j) - \frac{q_i}{q_j^2} (q_{ji} d x_i + q_{jj} d x_j)\\
+ =& \frac{(q_{ii} q_j - q_i q_{ji} )d x_i + (q_{ij} q_j - q_i q_{jj} )d x_j}{q_j^2}.
+\end{align*}
+Also, taking the differential along an isoquant we can write that
+$$EQ = q_i d x_i + q_j d x_j =0,$$
+which implies that
+\begin{equation}\label{eq.dxj}
+d x_j = -\frac{q_i}{q_j} d x_i.
+\end{equation}
+
+Using these expressions in the definition of the elasticity of substitution we can write that
+\begin{align*}
+\sigma_{ij} =& \frac{ \frac{\cancel{x_i}}{x_j}  \frac{x_i d x_j - x_j d x_i}{x_i^{\cancel{2}}} }{\frac{\cancel{q_j}}{q_i} \frac{(q_{ii} q_j - q_i q_{ji} )d x_i + (q_{ij} q_j - q_i q_{jj} )d x_j}{q_j^{\cancel{2}}} }\\
+            =& \frac{ \frac{1}{x_j}  \frac{x_i d x_j - x_j d x_i}{x_i} }{\frac{1}{q_i} \frac{(q_{ii} q_j - q_i q_{ji} )d x_i + (q_{ij} q_j - q_i q_{jj} )d x_j}{q_j} }.
+\end{align*}
+Using expression \eqref{eq.dxj}
+\begin{align*}
+\sigma_{ij} =& \frac{ -\frac{1}{x_i x_j} (\frac{x_i q_i}{q_j} + x_j ) \cancel{d x_i} }{\frac{1}{q_i q_j} \left( (q_{ii} q_j - q_i q_{ji} ) - (q_{ij} q_j - q_i q_{jj} ) \frac{q_i}{q_j} \right) \cancel{d x_i}}\\
+=& \frac{ -\frac{1}{x_i x_j} (\frac{x_i q_i +  x_j q_j}{\cancel{q_j}} ) }{\frac{1}{q_i q_j} \left(\frac{ q_j (q_{ii} q_j - q_i q_{ji} ) - q_i (q_{ij} q_j - q_i q_{jj} ) } {\cancel{q_j}} \right) }.
+\end{align*}
+Following the derivation of \eqref{eq.q11}, we can write that $q_{ii}=-\frac{x_j}{x_i} q_{ij}$. Using these equalities and that $Q=x_i q_i +  x_j q_j$ under constant return to scale in the last expression for the elasticities of substitution yields
+$$\sigma_{ij} = \frac{ -\frac{1}{x_i x_j} Q }{\frac{1}{q_i q_j} \left( q_j (-\frac{x_j}{x_i} q_{ij} q_j - q_i q_{ji} ) - q_i (q_{ij} q_j + q_i \frac{x_i}{x_j} q_{ji} )  \right) }.$$
+Grouping terms at the denominator and using that $q_{ij} = q_{ji}$ yields
+\begin{align*}
+\sigma_{ij} =& \frac{ \cancel{-}\frac{1}{x_i x_j} Q }{\cancel{-}\frac{q_{ij}}{q_i q_j} \left( q_j (\frac{x_j q_j + q_i x_i}{x_i}) + q_i (\frac{x_i q_i + q_j x_j}{x_j})  \right) }\\
+=& \frac{ \frac{1}{\cancel{x_i x_j}} \cancel{Q} }{\frac{q_{ij} \cancel{Q}}{q_i q_j} \left( \frac{q_j x_j + q_i x_i}{\cancel{x_i x_j}} \right) }.
+\end{align*}
+Which simplifies to
+$$\sigma_{ij} = \frac{q_i q_j}{q_{ij}Q},$$
+or equivalently using \eqref{eq.muth_demand1} or \eqref{eq.muth_demand2}
+$$\sigma_{ij} = \frac{q_i}{q_{ij}} \frac{q_j}{Q} = \frac{q_i}{q_{ij} x_j} \frac{w_j x_j}{P Q} = s_j \eta_{ij},$$
+because $\eta_{ij} = \frac{q_i}{q_{ij} x_j}$ (you can verify that).
+
+
+
+

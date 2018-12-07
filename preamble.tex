@@ -1,0 +1,88 @@
+%\usepackage[fleqn]{amsmath}
+% \usepackage{amssymb}
+% \usepackage{amsthm}
+% \usepackage{verbatim}
+% \usepackage{url}
+% \usepackage{pslatex}
+\usepackage{ae}          %Pour utiliser une police compatible adobe
+% \usepackage{color}
+% \usepackage{colortbl}
+% \usepackage{graphicx}
+% \usepackage{pict2e} %To draw line with any slope
+% \usepackage{multirow}
+% \usepackage{multicol}
+% \usepackage{appendix}
+\usepackage{rotating}
+% \usepackage[center, labelfont = bf]{caption}
+% \usepackage{mdwlist}
+% \usepackage{enumitem}
+% \usepackage{authblk}
+\usepackage{cancel}
+% \usepackage{graphpap}
+% \usepackage{epic}
+\usepackage[table]{xcolor}
+% \usepackage{caption}
+\usepackage{subfig}
+% \usepackage{booktabs}
+
+\usepackage{fancyhdr}
+\pagestyle{plain}
+
+% %For bibliography
+% \usepackage[style=authoryear, backend=bibtex, natbib = true,language = english, isbn = false, url=false, doi=false, eprint=false]{biblatex}
+% 
+% %Remove the In: from the references
+% \renewbibmacro{in:}{}
+% 
+% %Because of bug in package
+% \makeatletter
+% \def\blx@maxline{77}
+% \makeatother
+
+\newcommand{\p}{\partial}
+
+\parindent 0in
+\setlength{\parskip}{1.25em}
+
+\RequirePackage{titlesec}
+\titlespacing{\section}{0pt}{0.85em}{0.15em}
+\titlespacing{\subsection}{0pt}{0.85em}{0.15em}
+\titlespacing{\subsubsection}{0pt}{0.85em}{0.15em}
+\titlespacing{\paragraph}{0pt}{0.85em}{0.15em}
+\titlespacing{\subparagraph}{0pt}{0.85em}{0.15em}
+
+\AtBeginDocument{
+\setlength{\abovedisplayskip}{6pt}
+\setlength{\belowdisplayskip}{6pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+\setlength{\abovecaptionskip}{6pt}
+\setlength{\belowcaptionskip}{6pt}
+\setlength{\floatsep}{0pt}
+\setlength{\textfloatsep}{10pt}
+\setlength{\intextsep}{5pt}
+}
+
+\renewcommand*\descriptionlabel[1]{%
+    \hspace\labelsep\normalfont #1}
+
+\definecolor{lgray}{gray}{0.9}
+
+% avoid clubs and widows
+\clubpenalty=10000
+\widowpenalty=10000
+\displaywidowpenalty=10000
+
+\usepackage{hyperref}
+\hypersetup{%
+   colorlinks = {true},
+   urlcolor = {blue},
+   linkcolor = {black},
+   citecolor = {black},
+   pdfborderstyle={/S/U/W 1},
+   urlbordercolor = 0 0 1,
+   citebordercolor = 1 1 1,
+   filebordercolor = 1 1 1,
+   linkbordercolor = 1 1 1,
+   pdfauthor = {Sebastien Pouliot},
+}

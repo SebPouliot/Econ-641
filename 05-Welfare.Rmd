@@ -1,0 +1,660 @@
+---
+author: "Sebastien pouliot"
+date: "Fall 2018"
+output:
+  pdf_document:
+    fig_caption: yes
+  html_document:
+    df_print: paged
+documentclass: book
+classoption: openany
+fontsize: 11pt
+site: bookdown::bookdown_site
+subparagraph: yes
+geometry: letterpaper, tmargin=0.85in, bmargin=1.1in, lmargin=1.15in, rmargin=1.15in, headheight=0.1in, headsep=0.15in, footskip=0.5in
+link-citations: yes
+biblio-style: apalike
+bibliography: References.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, fig.pos='htbp', fig.align = 'center', warning = FALSE, message = FALSE,  dev="CairoPDF", out.width = '75%')
+
+#Load some packages
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(magrittr)
+pacman::p_load(tidyverse)
+pacman::p_load(viridis)
+pacman::p_load(Cairo)
+pacman::p_load(readxl)
+pacman::p_load(lubridate)
+pacman::p_load(scales)
+pacman::p_load(stargazer)
+
+#Basic setup for figures
+source("Figures/Graph parameters.r")
+
+```
+
+\setcounter{chapter}{4}
+\setcounter{page}{123}
+
+# Welfare effects of commodity programs
+
+Commodity programs have been an important part of US agriculture. One role for economists is to understand how these programs affect the welfare of farmers and consumers. Here are some policy questions of interest:
+
+- What is the effect of commodity programs on consumers' and producers' welfare?
+- Who capture the rent from commodity programs?
+- When is the subsidy captured?
+- What is the deadweight loss of commodity programs?
+
+I will not go into great detail about measurement of welfare. For a general treatment of empirical measurement of welfare see @slesnick1998.
+
+## Measures of welfare
+
+We will derive in this section expressions that approximate consumer surplus and producer surplus in terms of elasticities. We will also briefly discuss other measures of consumer welfare and discuss which measure should be used in empirical analysis.
+
+### Consumer surplus and producer surplus
+
+Consider that we want to measure changes in consumer surplus and producer surplus caused by the introduction of a new supply subsidy. We will derive measures of surplus based on the current equilibrium and use available estimates of elasticities to obtain a prediction of the new equilibrium and a prediction of the change in consumer surplus.
+
+The change in consumer surplus is defined as
+$$ \Delta CS = \int_{P_0}^{P_1} Q^d(P) dP.$$
+That is, the change in consumer surplus is given be the area underneath the demand curve between the price $P_0$ and $P_1$.
+Similarly, the change in the producer surplus is given by
+$$\Delta PS = \int_{P_0}^{P_1^s} Q^s(P) dP,$$
+where $t$ is the subsidy per unit of output. Figure \ref{fig.surplus_sub} shows an example of change in consumer surplus (area $d+e+f$) and change in the producer surplus (area $a+b+c$) from a subsidy on supply. Here the subsidy is such that the government buys all the production at a price $P_1^s$ and sells is to consumers at a price $P_1$.
+
+\begin{figure}[htbp]
+\begin{center}
+    \begin{picture}(240,240)
+        %Axises and labels
+        \scriptsize
+        \put(0,0){\vector(1,0){220}} %x-axis
+        \put(0,0){\vector(0,1){220}} %y-axis
+        \put(215,-10){Q}
+        \put(-5,210){\makebox(0,0){P}}
+        %Lines
+        \thicklines
+        \put(0,200){\line(1,-1){180}}%Demand
+        \put(0,60){\line(1,1){140}}%Supply
+        \thinlines
+        \multiput(70,150)(0,-10){15}{\line(0,-1){5}}%Dashed line - vertical
+        \multiput(70,130)(-10,0){7}{\line(-1,0){5}}%Dashed line - horizontal
+        %Text
+        \put(185,20){$D$}
+        \put(65,-7.5){$Q_0$}
+        \put(-10,130){$P_0$}
+        \put(145,200){$S_0$}
+        %Introduce subsidy
+        \thinlines
+        \put(50,110){\vector(0,-1){40}}
+        \put(130,168){\makebox(0,0){$\left\}\rule{0pt}{22.5pt}\right.$}}
+        \put(135,165){t}
+        %Shift in the supply
+        \color{blue}
+        \multiput(90,150)(0,-10){15}{\line(0,-1){5}}%Dashed line - vertical
+        \multiput(90,110)(-10,0){9}{\line(-1,0){5}}%Dashed line - horizontal
+        \multiput(90,150)(-10,0){9}{\line(-1,0){5}}%Dashed line - horizontal
+        \thicklines
+        \put(0,20){\line(1,1){180}}%Supply-2
+        \put(85,-7.5){$Q_1$}
+        \put(-10,110){$P_1$}
+        \put(-10,150){$P_1^s$}
+        \put(185,200){$S_1$}
+        %Surfaces
+        \color{black}
+        \put(35,140){a}
+        \put(60,140){b}
+        \put(75,140){c}
+        \put(35,115){d}
+        \put(60,115){e}
+        \put(75,115){f}
+        \put(80,127.5){g}
+        %Text
+        \put(160,120){$\Delta CS = d+e+f$}
+        \put(160,110){$\Delta PS = a+b+c$}
+        \put(160,100){$\Delta TS = -(a+b+c+d+e+f+g)$}
+        \put(160,90){$\Delta NS = -g$}
+        \end{picture}
+\vspace{0.1in}
+\caption{Change in consumer surplus and producer surplus for a subsidy on supply} \label{fig.surplus_sub}
+\end{center}
+\end{figure}
+
+Our objective is to obtain a prediction of surplus change based on readily available data such as elasticities, and equilibrium price and quantity. You can find detail about the derivations below in @Alston2002. Deriving expressions for changes in surplus requires assumptions for the shape of the demand and the shape of the supply. Let's assume a linear demand given by
+$$Q^d=A-B P,$$
+and a linear supply given by $$Q^s=C+D P.$$ Given the expressions for demand and supply, the equilibrium price is $$P_0=\frac{A-C}{B+D},$$ and the equilibrium quantity is $$Q_0=\frac{AD+BC}{B+D}.$$
+
+Consider a subsidy on the price paid to suppliers such that we can write the supply as
+$$Q^s=C + D (P+t),$$ where $t$ is the subsidy per unit of output. If $t$ is negative, it becomes a tax on supply. The equilibrium price paid by the consumers with the subsidy is $$P_1=\frac{A-C - D t}{B+D},$$ the equilibrium price paid to producers with the subsidy is given by
+\begin{equation}\label{eq.P_subs}
+P_1^s = P_1 + t=\frac{A-C + B t}{B+D},
+\end{equation}
+and the equilibrium quantity is given by
+\begin{equation}\label{eq.Q_subs}
+Q_1=\frac{AD + BC + BDt}{B+D}.
+\end{equation}
+The change in the price paid by consumers from the subsidy is $$\Delta P = P_1 - P_0 = \frac{-Dt}{B+D},$$ and the change in the quantity is $$\Delta Q = Q_1 - Q_0 = \frac{BDt}{B+D}.$$
+
+Expressions for elasticities for the linear demand and the linear supply will be useful in deriving expressions for consumer surplus and producer surplus. The elasticity of supply is $$\epsilon = \frac{D P}{Q},$$ and the elasticity of demand is $$\eta = \frac{- B P}{Q}.$$
+
+We can now compute the change in consumer surplus using the areas identified in figure \ref{fig.surplus_sub}
+\begin{align*}
+\Delta CS =& \text{ area} (d + e + 2f) - \text{ area} (f)\\
+          =& (P_0 - P_1) Q_1 - \frac{(P_0 - P_1)(Q_1 - Q_0)}{2}\\
+          =& (P_0 - P_1) Q_1 \left( 1- \frac{Q_1-Q_0}{2Q_1}\right)\\
+          =& \frac{D t Q_1}{B+D}\left( 1- \frac{BDt}{2(B+D)Q_1}\right)\\
+          =& P_1 Q_1 \frac{t}{P_1} \frac{D}{B+D}\left( 1 - \frac{1}{2} \frac{B P_1}{Q_1} \frac{t}{P_1} \frac{D}{B+D}\right).
+\end{align*}
+The specific tax can be equivalently written as an *ad valorem* (tax in percentage) by writing $\tau = t/P_1$. Using the expression for the elasticity of demand we can write that $$\frac{D}{D+B} = \frac{DP_1/Q_1}{DP_1/Q_1 + BP_1/Q_1} = \frac{\epsilon}{\epsilon - \eta}.$$ Using that expression in the change in consumer surplus yields
+\begin{equation}\label{eq.deltaCS}
+\Delta CS = P_1 Q_1 \tau  \frac{\epsilon}{\epsilon - \eta} \left( 1 + \frac{1}{2} \eta \tau \frac{\epsilon}{\epsilon - \eta} \right).
+\end{equation}
+
+Similarly, we can now compute the change in producer surplus as
+\begin{align*}
+\Delta PS =& \text{ area} (a + b + 2 c) - \text{ area} (c)\\
+          =& (P_1^s - P_0) Q_1 - \frac{(P_1^s - P_0)(Q_1 - Q_0)}{2}\\
+          =& (P_1^s - P_0) Q_1 \left( 1-  \frac{Q_1 - Q_0}{2 Q_1}\right).
+\end{align*}
+From the expression for the supply curve we can write $P_1^s = (Q_1 - C)/D$ and we can write that $$ Q_1 = Q_0 + \frac{B D t}{B+D}.$$ Thus, the price paid to suppliers can be written as $$ P_1^s = \frac{Q_0 - C}{D} + \frac{B t}{B+D} = P_0 + \frac{B t}{B+D}.$$ Using the expressions above, the change in the producer surplus becomes
+\begin{align*}
+\Delta PS =& \frac{Bt}{B+D} Q_1 \left( 1-  \frac{Q_1 - Q_0}{2 Q_1}\right)\\
+          =& P_1 Q_1 \frac{t}{P_1} \frac{B}{B+D} \left( 1 -  \frac{BDt}{2(B+D)Q_1}\right)\\
+          =& P_1 Q_1 \frac{t}{P_1} \frac{B}{B+D} \left( 1 - \frac{1}{2} \frac{BP_1}{Q_1} \frac{t}{P_1}\frac{D}{B+D}\right).
+\end{align*}
+After simplification, the expression for the producer surplus is
+\begin{equation}\label{eq.deltaPS}
+\Delta PS = -P_1 Q_1 \tau \frac{\eta}{\epsilon - \eta}  \left( 1 + \frac{1}{2} \eta \tau \frac{\epsilon}{\epsilon - \eta} \right).
+\end{equation}
+
+The subsidy on supply is not free and is paid by taxpayers. The total cost to taxpayers is given by
+\begin{align}\label{eq.deltaTS}
+\Delta TS =& -(a+b+c+d+e+f+g) \notag\\
+          =& t Q_1 \notag \\
+          =& \frac{t}{P_1} P_1 Q_1\notag \\
+          =& -\tau P_1 Q_1.
+\end{align}
+Summing up the change in consumer surplus, change in producer surplus and the cost to taxpayers, we find that the net surplus is given by
+\begin{align}\label{eq.deltaNS}
+NS =& -g\notag\\
+   =& \Delta CS + \Delta PS + \Delta TS\notag\\
+   =& \frac{1}{2} P_1 Q_1 \tau^2 \frac{\epsilon \eta}{\epsilon - \eta}<0.
+\end{align}
+Thus, the production subsidy reduces total welfare and represents a dead weight loss.
+
+### Compensating variation and equivalent variation
+
+Consumer surplus is not an exact measure of consumer welfare because it is not based on utility. Money-metric measures of welfare based on utility are the compensating variation (CV) and the equivalent variation (EV) (see @MasColell1995 for detail).
+
+The *compensating variation* is the lump-sum transfer that compensates a consumer *after* the change in price occurs
+\begin{align*}
+CV =& e(p_1,u_1)-e(p_1,u_0)=W-e(p_1,u_0)=e(p_0,u_0)-e(p_1,u_0)\\
+   =& \int_{p_1}^{p_0} h(p,u_0)dp.
+\end{align*}
+Figure \ref{fig.CVEV} shows the compensating variation for a normal good.
+
+The *equivalent variation* is the lump-sum transfer that compensates a consumer *before* the change in price occurs
+\begin{align*}
+EV =& e(p_0,u_1)-e(p_0,u_0)=e(p_0,u_1) - W = e(p_0,u_1)- e(p_1,u_1)\\
+   =& \int_{p_1}^{p_0} h(p,u_1)dp.
+\end{align*}
+Figure \ref{fig.CVEV} shows the equivalent variation for a normal good.
+
+\begin{figure}[htbp]
+\begin{center}
+    \begin{picture}(240,240)
+        \scriptsize
+        %Axises and labels
+        \put(0,0){\vector(1,0){220}} %x-axis
+        \put(0,0){\vector(0,1){220}} %y-axis
+        \put(215,-10){Q}
+        \put(-5,210){\makebox(0,0){P}}
+        \put(185,20){$D$}
+        %Lines
+        \thicklines
+        \put(0,160){\line(4,-3){180}}%Demand
+        %P0
+        \put(20,200){\line(1,-2){90}}%Demand
+        \thinlines
+        \multiput(64,112)(0,-10.18){11}{\line(0,-1){5.09}}%Dashed line - vertical
+        \multiput(104,112)(-10.4,0){10}{\line(-1,0){5.2}}%Dashed line - horizontal
+        \put(60,-7.5){$Q_0$}
+        \put(-10,110){$P_0$}
+        \put(20,205){$h(p,u_0)$}
+        %P1
+        \color{blue}
+        \thicklines
+        \put(60,200){\line(1,-2){90}}%Demand
+        \thinlines
+        \multiput(128,64)(0,-10.67){6}{\line(0,-1){5.33}}%Dashed line - vertical
+        \multiput(128,64)(-9.85,0){13}{\line(-1,0){4.92}}%Dashed line - horizontal
+        \put(125,-7.5){$Q_1$}
+        \put(-10,60){$P_1$}
+        \put(60,205){$h(p,u_1)$}
+        %Surfaces
+        \color{black}
+        \put(32,85){a}
+        \put(70,75){b}
+        \put(100,75){c}
+        \put(100,95){d}
+        %Welfare
+        \put(160,120){$CV = a + b$}
+        \put(160,110){$EV = a+b+c+d$}
+        \end{picture}
+\vspace{0.1in}
+\caption{Compensating variation (CV) and equivalent variation (EV)} \label{fig.CVEV}
+\end{center}
+\end{figure}
+
+Which welfare measure to use? CV and EV are both correct welfare measures but answer different questions. Thus, the choice of welfare measure should, of course, depend on the type of question that an analyst wish to answer.
+
+Agricultural economists often use consumer surplus because it gives an answer very close to CV and EV. Demand for agricultural products is inelastic and individual food items represent a small share of income. The difference in $\Delta CS$, CV and EV depends on $\eta$ and $\eta^H$. Recall that the Slutsky equation is given by $\eta_{i}^{H} = \eta_{i} + s_i \eta_{iW}$. The share $s_i$ is typically for small agriculture and food commodities such that $\eta_{i}$ and $\eta_{i}^{H}$ are similar. That is, the slope of the Hicksian demand is almost the same as the slope of the Marshallian demand. In figure \ref{fig.CVEV} it implies that the areas $c$ and $d$ are small. Thus, $\Delta CS$, CV and EV should yield similar results for agricultural products. See @Alston1993 for detail.^[The choice of welfare measure is somewhat controversial. @Willig1976 shows that the choice of measure does matter much. That paper started a heated debate between @McKenzie1979 and @Willig1979.]
+
+
+## Efficient redistribution: surplus transformation curves
+
+What is the most efficient policy instrument to achieve a given level of producer welfare? Here we compare a (marketing) quota to a deficiency payment, which can be equivalently modeled as a production subsidy. The discussion in this section is based on @Gardner1983 and @Alston2002.
+
+Figure \ref{fig.equiv} shows the market effects of price-equivalent quota and deficiency payment. The quota limits production to $\bar{Q}$. The deficiency payment assures a price $P_1$ to suppliers. However, given that consumers are willing to pay $P_2$ at the quantity marketed $Q_{dp}$, taxpayers must pay for the difference $P_1-P_2$ such that the total cost to taxpayers is $(P_1-P_2)Q_{dp}$.^[Note that in figure \ref{fig.equiv} that the quota intersects the supply line at $P_2$. This is a special case and simplifies the figure as it reduces the number of areas that must be identified.]
+
+
+\begin{figure}[htbp]
+\begin{center}
+    \begin{picture}(240,240)
+        %Axises and labels
+        \scriptsize
+        \put(0,0){\vector(1,0){260}} %x-axis
+        \put(0,0){\vector(0,1){220}} %y-axis
+        \put(235,-10){Q}
+        \put(-5,210){\makebox(0,0){P}}
+        %Lines
+        \thicklines
+        \put(0,200){\line(1,-1){180}}%Demand
+        \put(0,0){\line(1,1){180}}%Supply
+        \thinlines
+        \multiput(100,100)(0,-10){10}{\line(0,-1){4.72}}%Dashed line - vertical
+        \multiput(100,100)(-10,0){10}{\line(-1,0){5.28}}%Dashed line - horizontal
+        %Text
+        \put(185,20){$D$}
+        \put(100.5555,-10){$Q_0$}
+        \put(-10,100){$P_0$}
+        \put(180,185){$S$}
+        %Deficiency payment
+        \thicklines
+        \color{blue}
+        \put(0,150){\line(1,0){200}}
+        \thinlines
+        \multiput(0,50)(10,0){15}{\line(1,0){5}}%Dashed line - horizontal
+        \multiput(150,150)(0,-10){15}{\line(0,-1){5}}%Dashed line - vertical
+        \put(145,-10){$Q_{dp}$}
+        \color{black}
+        \put(-10,150){$P_1$}
+        \put(-10,50){$P_2$}
+        %Quota
+        \color{red}
+        \thicklines
+        \put(50,0){\line(0,1){180}}
+        \put(45,-10){$\bar{Q}$}
+        %Surfaces
+        \color{black}
+        \put(20,160){a}
+        \put(20,120){b}
+        \put(65,115){c}
+        \put(100.555,125){d}
+        \put(20,70){e}
+        \put(65,80){f}
+        \put(85,65){g}
+        \put(112,65){h}
+        \put(125,100){i}
+        \put(20,30){j}
+        \end{picture}
+\vspace{0.15in}
+\caption{Welfare effects of price-equivalent quota and deficiency payment} \label{fig.equiv}
+\end{center}
+\end{figure}
+
+Table \ref{tab.equiv} show the producer surplus, consumer surplus, taxpayer surplus and dead-weight loss calculated from figure \ref{fig.equiv}. Both instruments yield a dead-weight loss. If the objective of a policy-maker is to use the instrument that yields a price paid to suppliers equal to $P_1$, then the policy-maker must compare the size of $c+f+k$ and $i$.
+
+Table: Welfare calculation from figure \ref{fig.equiv} \label{tab.equiv}
+
+|    | Quota   |   Deficiency payment  | Social optimum |
+|:---|:-------:|:---------------------:|:--------------:|
+| PS | $b+e+j$ | $b+c+d+e+f+j$         | $e+f+j$        |
+| CS | $a$     | $a+b+c+e+f+g+h$       | $a+b+c$        | 
+| TS |         | $-(b+c+d+e+f+g+h+i)$  |                |
+| DWL| $c+f$ | $i$                     |                |
+
+@Gardner1983 proposes to use surplus transformation curves to link producers surplus to consumers surplus. By comparing surplus transformation curves for different instruments it is therefore possible to find the instrument that yields the maximum consumer surplus for a given producer surplus.
+
+In the calculations below, we will consider a linear demand and a linear supply. The demand is given by $Q^d=A-B P^d$ such that the inverse demand is $P^d=(A-Q^d)/B$. The supply is given by $Q^s=C+D P^s$ such that the inverse supply is given by $P^s=(Q^s-C)/D$.
+
+### Surplus transformation curve for a quota
+
+Consumer surplus under a quota, following the area identified in figure \ref{fig.equiv}, is given by
+\begin{align}\label{eq.CS}
+CS^Q =& \text{ area}(a) \notag\\
+   =& \frac{1}{2} \left(\frac{A}{B} - P_1 \right) \bar{Q} \notag \\
+   =& \frac{1}{2} \left(\frac{A}{B} - \left(\frac{A-\bar{Q}}{B} \right)\right) \bar{Q} \notag \\
+   =& \frac{\bar{Q}^2}{2B}.
+\end{align}
+Following figure \ref{fig.equiv}, we can write the producer surplus as
+\begin{align}\label{eq.PS}
+PS^Q =& \text{ area}(b+e) +\text{ area}(j) \notag \\
+   =& (P_1 - P_2) \bar{Q} + \frac{1}{2} P_2 \bar{Q} \notag \\
+   =& \left( \left(\frac{A-\bar{Q}}{B} \right) - \left(\frac{\bar{Q} - C}{D} \right)  \right) \bar{Q} + \frac{1}{2} \left(\frac{\bar{Q} - C}{D} + \frac{C}{D} \right) \notag \\
+   =&\left( \left(\frac{A-\bar{Q}}{B} \right) - \left(\frac{\bar{Q} - C}{D} \right)  \right) \bar{Q} + \frac{\bar{Q}^2}{2D}.
+\end{align}
+Expressions \eqref{eq.CS} and \eqref{eq.PS} implicitly define a surplus transformation curve $PS^Q(CS^Q)$. It is possible to find an expression for the surplus transformation curve by solving both \eqref{eq.CS} and \eqref{eq.PS} with respect to $\bar{Q}$. Than, equating $\bar{Q}$ from the two solutions, you can solve to find the surplus transformation curve given as a function $PS^Q(CS^Q)$. That expression is quite cumbersome and I therefore leave it out of these notes.
+
+### Surplus transformation curve for deficiency payment
+
+The derivation of a surplus transformation curve for a deficiency payment follows the same steps. However, it is convenient to express the deficiency payment as a subsidy on production. To see this, compare the welfare effect of the deficiency payment in figure \ref{fig.equiv} to the welfare effect of a production subsidy in figure \ref{fig.surplus_sub}. Recall that for a production subsidy that the price paid to suppliers is given by \eqref{eq.P_subs} and the equilibrium quantity is given by \eqref{eq.Q_subs}.
+
+For a deficiency payment, consumer surplus, net of taxation, is calculated as
+\begin{align*}
+CS^{dp} - TS =& \text{ area}(a + b + c + e + f + g + h) - \text{ area}(b + c + d + e + f + g + h +i) \\
+   =& \text{ area}(a-(d + i))\\
+   =& \frac{1}{2} \left(\frac{A}{B} - P_2 \right) Q_{dp} - (P_1 - P_2) Q_{dp}\\
+   =& \frac{Q_{dp}^2}{2B} - t Q_{dp}.
+\end{align*}
+The producer surplus is given by
+\begin{align*}
+PS^{dp} =& \text{ area}(b + c + d + e + f + j + k)\\
+     =& \frac{Q_{dp}^2}{2D}.
+\end{align*}
+Thus, given the solutions for the consumer surplus and the producer surplus, we can find the surplus transformation curve as a function $PS^S(CS^S)$. Again, I leave out of these notes the expression as it is too cumbersome.
+
+### Example of surplus transformation curve
+
+I show in figure \ref{fig.surpluscurve} surplus transformation curves from a numerical example. The functions were computed using *Mathematica*. I start by fixing the initial equilibrium price at $P=5$ and the equilibrium quantity at $Q=60$. Then, for given values for the elasticity of demand and supply, I recover the parameters for a linear demand and a linear supply. I also show in figure \ref{fig.surpluscurve} a 45$^{\circ}$ line that shows where the total surplus is maximized, assuming that lump sum transfers are possible between producers and consumers. From that line, you can calculate the dead-weight loss of an instrument as the vertical or the horizontal distance between the maximum surplus line and the transformation curve.
+
+Figure \ref{fig.quotasefficient} shows a case where the quota is more efficient than a deficiency payment for all levels of producer surplus. The deficiency payment also covers a smaller range of values for the producer surplus. Figure \ref{fig.subsefficient} shows a case where a deficiency payment is more efficient than a quota. Finally, in figure \ref{fig.costtax}, collecting tax causes a dead-weight loss somewhere else in the economy and therefore there is a social cost of welfare that is given by the parameter $\delta$. The larger is $\delta$, the more costly a tax is to the economy.
+
+
+\begin{figure}[htbp]
+     \centering
+     \subfloat[Quota is most efficient: $\eta = -0.2$, $\epsilon = 2$ and $\delta = 0$]{
+     \includegraphics[width=3in]{Figures/quotasefficient.png}\label{fig.quotasefficient}
+     }\\
+    \vspace{0.3in}
+     \subfloat[Deficiency payment is most efficient: $\eta = -0.6$, $\epsilon = 0.25$ and $\delta = 0$]{
+     \includegraphics[width=3in]{Figures/subsefficient.png}\label{fig.subsefficient}
+     }\\
+    \vspace{0.3in}
+     \subfloat[Effect of social cost of taxation: $\eta = -0.6$, $\epsilon = 0.25$ and $\delta = 0.5$]{
+     \includegraphics[width=3in]{Figures/costtax.png}\label{fig.costtax}
+     }
+     \caption{Examples of surplus transformation curves}\label{fig.surpluscurve}
+\end{figure}
+
+In general, a quota is more efficient when the elasticity of demand is small or when the elasticity of supply is high. On the other side, a deficiency payment is more efficient when the elasticity of demand is high or when the elasticity of supply is low.
+
+## Surplus distribution in a supply chain
+
+Production subsidies are, of course, allocated to farmers. However, for a given market structure, farmers may not be those that actually capture the rent from subsidies. We will see in this section that the rent from a subsidy is distributed along a supply chain according to elasticities of demand and supply. See @Floyd1965, @Just1979, @Just1982 and @Alston2002 for more information on the subject.
+
+Figure \ref{fig.distsubw} shows a supply chain for one output and two inputs. Figure \ref{fig.foodw} is the market for the farm output. The farm product requires inputs that are summarized here by land and by other inputs. Figure \ref{fig.landw} shows the market for land and figure \ref{fig.otherinputsw} shows the market for the other inputs.
+
+\begin{figure}[htbp]
+\vspace{0.2in}
+\begin{center}
+    \subfloat[Farm Output]{
+    \centering
+    \begin{picture}(200,220)
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){220}} %x-axis
+        \put(0,20){\vector(0,1){220}} %y-axis
+        \put(195,10){Q}
+        \put(-5,215){\makebox(0,0){P}}
+        %Lines
+        \thicklines
+        \put(0,200){\line(1,-1){160}}%Demand
+        \put(0,40){\line(4,5){120}}%Supply
+        \thinlines
+        \multiput(71.111,128.888)(-10.16,0){7}{\line(-1,0){5.08}}%Dashed line - horizontal
+        %Text
+        \put(160,30){$D$}
+        \put(120,195){$S$}
+        %Surfaces
+        \color{black}
+        \put(20,140){a}
+        \put(15,95){b+c}
+    \end{picture}
+    \label{fig.foodw}
+    }\\
+    \vspace{0.3in}
+    \subfloat[Land]{
+    \centering
+    \begin{picture}(180,200)
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,7.5){$x_1$}
+        \put(-5,195){\makebox(0,0){$w_1$}}
+        %Lines
+        \thicklines
+        \put(0,180){\line(1,-1){140}}%Demand
+        \put(0,25){\line(2,5){60}}%Supply
+        \thinlines
+        \multiput(44.2857,135.7143)(-9,0){5}{\line(-1,0){4.5}}%Dashed line - horizontal
+        %Text
+        \put(140,30){$D_1$}
+        \put(60,185){$S_1$}
+        %Surfaces
+        \color{black}
+        \put(10,145){a+c}
+        \put(15,110){b}
+    \end{picture}
+    \label{fig.landw}
+    }
+    \hspace{0.15in}
+    \subfloat[Other inputs (e.g. labor)]{
+    \centering
+    \begin{picture}(180,200)
+        %Axises and labels
+        \scriptsize
+        \put(0,20){\vector(1,0){175}} %x-axis
+        \put(0,20){\vector(0,1){175}} %y-axis
+        \put(175,10){$x_2$}
+        \put(-5,195){\makebox(0,0){$w_2$}}
+        %Lines
+        \thicklines
+        \put(0,180){\line(1,-1){140}}%Demand
+        \put(0,70){\line(2,1){150}}%Supply
+        \thinlines
+        \multiput(73.3333,106.666)(-10.48,0){7}{\line(-1,0){5.24}}%Dashed line - horizontal
+        %Text
+        \put(140,30){$D_2$}
+        \put(155,145){$S_2$}
+        %Surfaces
+        \color{black}
+        \put(15,115){a+b}
+        \put(20,90){c}
+    \end{picture}
+    \label{fig.otherinputsw}
+    }
+\end{center}
+\caption{Distribution of welfare along a supply chain} \label{fig.distsubw}
+\end{figure}
+
+Figure \ref{fig.distsubw} shows how the surplus in each market relate. In figure \ref{fig.foodw}, area $a$ accrues to the buyers of the farm product while the areas $b$ and $c$ accrues to the suppliers of the inputs as shown in figure \ref{fig.landw} and figure \ref{fig.otherinputsw}. This means that by observing a single market, it is possible to observe the total economic surplus. That is, the sum of producer and consumer surplus in each market equals $a+b+c$. Note however that the interpretation of surplus in each of the markets differs. Does it mean that farm owners do not capture any rent? No because they themselves provide some of the inputs to the farm.
+
+The relationship between the surplus in each the markets in figure \ref{fig.distsubw} is valid if all inputs are necessary and if there is a positive shut down price (demand crosses vertical axis). The conditions for the surpluses to sum across markets are not made explicit by @Just1979.
+
+To gain more insights, let us use the dual of the Muth model as developed in @Alston2002. Recall that the equations of the model are given by
+\begin{align*}
+\text{Output demand: } & Q =f(P:a); \\
+\text{Profit function: } & P Q - C(w_1,w_2)Q = 0;\\
+\text{Demand for land: } & x_1 = h_1(w_1,w_2) Q = C_1 Q;\\
+\text{Demand for other input: } & x_2 = h_2(w_1,w_2) Q = C_2 Q;\\
+\text{Supply of land: } & x_1 = g(w_1: b_1);\\
+\text{Supply of other inputs: } & x_2 = g(w_2: b_2).
+\end{align*}
+Differentiating each equation and writing the model in its elasticity form yields
+\begin{align*}
+\text{Output demand: } & EQ = \eta (EP - \alpha); \\
+\text{Profit function: } & EP = s_1 Ew_1 + s_2 Ew_2;\\
+\text{Demand for land: } & Ex_1 = -s_2 \sigma Ew_1 + s_2 \sigma Ew_2 + EQ ;\\
+\text{Demand for other inputs: } & Ex_2 = s_1 \sigma Ew_1 - s_1 \sigma Ew_2 + EQ ;\\
+\text{Supply of land: } & Ex_1 = \epsilon_1 (Ew_1 + \beta_1);\\
+\text{Supply of other inputs: } & Ex_2 = \epsilon_2 (Ew_2 + \beta_2).
+\end{align*}
+I will not derive the solutions for the model. As you will see below, we will derive expressions for the incidence of different types of subsidies without making use of the solutions of the model.
+
+### Output subsidy
+
+Given the expressions above, it is convenient to model an output subsidy as a positive shift in demand. You can verify that it is equivalent to a shift in the supply in figure \ref{fig.subdemandsupply}. The reason for modeling the output subsidy this way is that we can use the exogenous parameter on the demand. We cannot do a shift on the supply because it is derived from the supply of inputs and the production technology. Thus, let me write that the shift in demand is $\alpha = \tau_Q$, where $\tau_Q = t/P$ and $t$ is the subsidy by unit of the farm output.
+
+\begin{figure}[htbp]
+\begin{center}
+    \begin{picture}(240,240)
+        %Axises and labels
+        \scriptsize
+        \put(0,0){\vector(1,0){260}} %x-axis
+        \put(0,0){\vector(0,1){220}} %y-axis
+        \put(235,-10){Q}
+        \put(-10,210){P}
+        %Lines
+        \thicklines
+        \put(0,200){\line(1,-1){180}}%Demand
+        \put(30,0){\line(4,5){150}}%Supply
+        \thinlines
+        \multiput(105.555,94.444)(0,-10){10}{\line(0,-1){6}}%Dashed line - vertical
+        \multiput(105.555,94.444)(-10,0){10}{\line(-1,0){6}}%Dashed line - horizontal
+        %Text
+        \put(185,20){$D$}
+        \put(100.5555,-10){$Q_0$}
+        \put(-10,95){$P_0$}
+        \put(180,185){$S$}
+        %Subsidy on production or consumption
+        \thicklines
+        \color{blue}
+        \put(100,200){\line(1,-1){140}}%Demand
+        \put(20,180){\vector(1,0){100}} %shift demand
+        \put(240,55){$D_1$}
+        \color{red}
+        \put(110,0){\line(4,5){140}}%Supply
+        \put(50,25){\vector(1,0){80}} %shift supply
+        \put(250,180){$S_1$}
+        \thinlines
+        \color{black}
+        \multiput(0,150)(10,0){15}{\line(1,0){6}}%Dashed line - horizontal
+        \multiput(0,50)(10,0){15}{\line(1,0){6}}%Dashed line - horizontal
+        \multiput(150,150)(0,-10){15}{\line(0,-1){6}}%Dashed line - vertical
+        \put(145,-10){$Q_{1}$}
+        \put(-10,150){$P_1$}
+        \put(-10,50){$P_2$}
+        %Surfaces
+        \color{black}
+        %\put(20,160){a}
+        %\put(20,120){b}
+        %\put(65,115){c}
+    \end{picture}
+\vspace{0.15in}
+\caption{Subsidy modeled as shift in demand and shift in supply} \label{fig.subdemandsupply}
+\end{center}
+\end{figure}
+
+
+We will simplify the calculation of changes in welfare by ignoring triangles, focusing on the larger rectangles. We can write that the change in consumer surplus from a subsidy on output is approximately given by $$ \Delta CS_Q \approx (P_0 - P_1 + t)Q_0 = -(EP - \tau_Q) P Q = -\frac{EQ}{\eta} P Q = -EQ \frac{PQ}{\eta}, $$ where $EP - \tau_Q$ is the change in price paid by consumers in percentage. Likewise, the producer surplus in the output market is approximately given by $$ \Delta PS_Q \approx (P_1 -P_0)Q_0 = EP~P Q = -\frac{EQ}{\epsilon} P Q = EQ \frac{PQ}{\epsilon}.$$ Note that we can also write that $$ \Delta PS_1 \approx Ew_1~w_1 x_1 = E x_1 \frac{w_1 x_1}{\epsilon_1}$$ and $$\Delta PS_2 \approx Ew_2~w_2 x_2 = E x_2 \frac{w_2 x_2}{\epsilon_2}.$$
+
+We know that the subsidy will in part be captured by consumers, not accounting for the cost of the subsidy to taxpayers. Here we are interested in determining who among the input suppliers will capture the rent from the subsidy. It is convenient to take a look at the relative benefit of the subsidy to input suppliers
+\begin{equation}\label{eq.PS1PS2}
+\frac{\Delta PS_1}{\Delta PS_2} \approx \frac{s_1 (\sigma + \epsilon_2)}{s_2 (\sigma + \epsilon_1)}.
+\end{equation}
+This expression implies that the input with the lowest supply elasticity is the one that will capture the largest share of the subsidy.
+
+Some claim that land captures all the rent from subsidies because it supply elasticity is near zero. Let us explore whether that is true by setting the supply elasticity of land near zero ($\epsilon_1 \approx 0$) in the previous expression $$ \frac{\Delta PS_1}{\Delta PS_2} \approx \frac{s_1 (\sigma + \epsilon_2)}{s_2 \sigma }.$$ Thus, only under extreme assumptions that the benefit of subsidies will all be captured by land, i.e. $\frac{\Delta PS_1}{\Delta PS_2} \rightarrow \infty$. It requires that either $\sigma  \rightarrow 0$ or that $\epsilon_2  \rightarrow \infty$.
+
+### Input subsidy
+
+Consider a subsidy on land. In our model, this can be expressed by writing $\beta_1 = \tau_1$. The effect of a subsidy on land is undetermined and depends on whether $x_1$ and $x_2$ are complement.
+
+### Output quota
+
+A quota on output can be modeled by setting the elasticity of demand for the farm output equals zero, $\eta  = 0$. Write the expression for the demand as $EQ=-\delta$, where $\delta$ is the percentage change in the farm output with respect to the initial equilibrium. The change in consumer surplus is given by $$\Delta CS_{\bar{Q}} \approx \delta \frac{PQ}{\eta}$$
+where $\eta$ is the actual demand elasticity. The distribution of benefits between input suppliers follows the ratio given in expression \eqref{eq.PS1PS2}.
+
+Quota ownership raises many questions. Who owns a quota? Is it transferrable? Is the quota attached to an input?
+
+### Parametrization by Alston (2010)
+
+@Alston2010 calculates the incidence of US farm programs using a model similar to the one described above. These calculations are now a bit old but they are useful in showing how this can be done. Using today's numbers would produce very different results.
+
+We will use the numbers in @Alston2010 to estimate the deadweight loss of US farm programs. @Alston2010 uses the following parameters
+
+- $\eta = -1$;
+- $\epsilon_1 = 0.1$;
+- $\epsilon_2 = 1.0$;
+- $s_1 = 0.20$;
+- $s_2 = 0.80$;
+- $\sigma=0.10$.
+
+@Alston2010 justifies those numbers as follow:
+
+- Direct estimates of the aggregate supply of land do not exist and the elasticity is a guestimate by @Alston2010;
+- The supply of other inputs (input 2) includes capital, purchased inputs, hired farm labor, family labor and management. Inputs other than family labor and management are elastically supplied and an aggregate value of 1 seems reasonable;
+- The elasticity of substitution is from @Chalfant1984;
+- Shares are calculated from data;
+- @Alston2010 main results are calculated using $\eta = -1$. However, @Alston2007 calculates an elasticity of demand of $\eta = -1.83$. That number however overestimates the elasticity of demand because it is calculated assuming no cross-price elasticity. That elasticity is calculated using aggregate output and prices (Fisher price index).
+- The derived elasticity of farm supply is $\epsilon = 0.45$
+
+Table 5.3 in @Alston2010 shows that the equivalent rate of output subsidy per dollar is 0.19 for the program crops and that the total value for those crops in 2005 was \$57,798 million. Here, we are not considering fix payments that do not distort production and that supposedly are a lump-sum transfer.  From the numbers and parameters in @Alston2010, we can approximate the deadweight loss of program crops. Using \eqref{eq.deltaCS} we can write
+\begin{align*}
+\Delta CS =& P_1 Q_1 \tau  \frac{\epsilon}{\epsilon - \eta} \left( 1 + \frac{1}{2} \eta \tau \frac{\epsilon}{\epsilon - \eta} \right)\\
+          =& 57,798 \times 0.19 \times \left(\frac{0.45}{0.45 + 1} \right) \left( 1 + \frac{1}{2} \times (-1) \times 0.19 \left(\frac{0.45}{0.45 + 1} \right) \right)\\
+          =& \$ 3,307 M.
+\end{align*}
+Using \eqref{eq.deltaPS}, the change in producer surplus is
+\begin{align*}
+\Delta PS =& -P_1 Q_1 \tau \frac{\eta}{\epsilon - \eta}  \left( 1 + \frac{1}{2} \eta \tau \frac{\epsilon}{\epsilon - \eta} \right)\\
+          =& -57,798 \times 0.19 \times \left(\frac{-1}{0.45 + 1} \right)  \left( 1 + \frac{1}{2} \times (-1)\times 0.19 \times \left(\frac{0.45}{0.45 + 1} \right) \right)\\
+          =& \$ 7,350 M.
+\end{align*}
+From \eqref{eq.deltaTS}, the cost to taxpayers is
+\begin{align*}
+\Delta TS =& -\tau P_1 Q_1\\
+          =& - 0.19 \times 57,798\\
+          =& -\$10,958 M.
+\end{align*}
+Finally, from \eqref{eq.deltaNS} the net surplus is given by
+\begin{align*}\label{eq.deltaNS}
+NS =& \frac{1}{2} P_1 Q_1 \tau^2 \frac{\epsilon \eta}{\epsilon - \eta}\\
+   =& \frac{1}{2}\times 57,798 \times (0.19)^2 \times \left(\frac{0.45 (-1)}{0.45 + 1}\right)\\
+   =& -\$300 M.
+\end{align*}
+This excludes the deadweight loss related to decoupled *subsidies*. Including a cost of taxation of 20\% over all subsidy expenditure that equals \$16,520 million, the deadweight loss becomes \$3,604 million.
+
+
+#### Share of subsidy that goes to land
+As an aside, let's take a quick look at the share of a subsidy that goes to land by looking at how much of the subsidy is captured by landowners using the parametrization by @Alston2010. Lets first take a look at the share of the subsidy that is captured by producers $$ \frac{\Delta PS}{\Delta TS} = \frac{\$ 7,350 M}{ \$ 10,958 M} = 0.67.$$ This means that 67 cents of one dollar of subsidy goes into the producer surplus. The rest almost entirely goes into the consumer surplus.
+
+Let's take a look now at the share of the subsidy that goes to land by looking at the ratio of the change in the landowner surplus and subsidy expenditure. Using expression 5.3 in @Alston2010 yields \label{page:land}
+\begin{align*}
+\frac{\Delta PS_1}{\Delta TS} =& \frac{ - s_1 \eta (\sigma + \epsilon_2)}{\epsilon_1 \epsilon_2 + \sigma(s_1 \epsilon_1 + s_2 \epsilon_2 - \eta) - \eta (s_2 \epsilon_1 + s_1 \epsilon_2)}\\
+ =& \frac{- 0.2 \times (-1) \times(0.1 + 1)}{0.1 \times 1 + 0.1 \times (0.2 \times 0.1 + 0.8 \times 1 - (-1)) - (-1) \times (0.8 \times 0.1 + 0.2 \times 1)}\\
+ =& \frac{0.22}{0.562} = 0.39.
+\end{align*}
+We can calculate the same ratio for the other inputs
+\begin{align*}
+\frac{\Delta PS_2}{\Delta TS} =& \frac{ - s_2 \eta (\sigma + \epsilon_1)}{\epsilon_1 \epsilon_2 + \sigma(s_1 \epsilon_1 + s_2 \epsilon_2 - \eta) - \eta (s_2 \epsilon_1 + s_1 \epsilon_2)}\\
+ =& \frac{- 0.8 \times (-1) \times(0.1 + 0.1)}{0.1 \times 1 + 0.1 \times (0.2 \times 0.1 + 0.8 \times 1 - (-1)) - (-1) \times (0.8 \times 0.1 + 0.2 \times 1)}\\
+ =& \frac{0.16}{0.562} = 0.28.
+\end{align*}
+This means that in total, 39 cents of one dollar of subsidy expenditure goes to land, 28 cents of one dollar of subsidy expenditure goes to other input and the rest, 33 cents, almost all goes to consumers. Another way to see this is that land capture 58\% of the subsidy captured by producers.
+
+This is the type of results that is typically found in the literature that agriculture subsidies are mostly captured in the price of land. But note that not all the subsidy is captured by land, other inputs also capture a good share of the subsidy. This is unlike some literature that suggest that all of the subsidy is captured in land value. We will come back to that important results in the next section about the effects of farm subsidies.
+
+## Capitalization
+
+Capitalization is the concept that the value of a fix asset is given by the present value of all future earnings. That means that any future subsidy will be capitalized into farm fixed asset such as land.
+
+Consider for example a painting in 1890. That year it is announced that a generous tax credit will apply to the purchase of art in 1950. Who captures the tax credit? It is the owner of the painting in 1890 because the rent from the tax credit is capitalized into the value of the painting in 1890.
+
+The same goes for farm fixed asset. This implies that the value of land does not only capture the value of subsidies in the current period but all the expected subsidy rent in future periods. This raises the question not only who capture the rent from a subsidy but when is it captured? Also, must consider expectations about future policies. Are subsidies going to be available in future periods?
+
+
